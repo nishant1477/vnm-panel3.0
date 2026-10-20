@@ -1,0 +1,29 @@
+[Unit]
+Description=VNM Panel - Independent Watchdog
+# Independent watchdog: must NOT be part of or restarted by the panel.
+# Requires network; prefers starting after the panel but must be able
+# to run (and restart it) even when the panel is dead.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /opt/vnm-panel/watchdog/vnm-watchdog.js
+Restart=always
+RestartSec=10
+# The watchdog only needs HTTP + systemctl - no panel files to write
+# (its config/heartbeat/logs live in the data dir).
+DynamicUser=no
+User=vnmpanel
+Group=vnmpanel
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=-/home/vnmpanel/.vnm
+# Allowed to restart the panel via sudo (least-privilege sudoers rule
+# is installed by scripts/lockdown.sh):
+#   vnmpanel ALL=(root) NOPASSWD: /bin/systemctl restart vnm-panel, /bin/systemctl restart vnm-agent
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

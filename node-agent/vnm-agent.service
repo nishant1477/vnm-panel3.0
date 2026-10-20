@@ -1,0 +1,23 @@
+[Unit]
+Description=VNM Node Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vnm-agent
+Group=vnm-agent
+WorkingDirectory=/opt/vnm-agent
+ExecStart=@NODE_BIN@ /opt/vnm-agent/agent.js
+EnvironmentFile=-/etc/vnm-agent/agent.env
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vnm-agent
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target

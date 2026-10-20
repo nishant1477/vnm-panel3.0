@@ -1,0 +1,20 @@
+{
+  "name": "vnm-node-agent",
+  "version": "1.4.1",
+  "description": "VNM Node Agent - gives the VNM Panel real access to a node (QEMU VMs, snapshots, backups, storage, file transfer)",
+  "main": "agent.js",
+  "bin": {
+    "vnm-node-agent": "./agent.js"
+  },
+  "scripts": {
+    "start": "node agent.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2",
+    "ssh2": "^1.15.0"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "UNLICENSED"
+}
