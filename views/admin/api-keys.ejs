@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .ak-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .key-row { display:flex; align-items:center; gap:14px; padding:13px 16px; border-radius:13px; border:1px solid var(--border-subtle, rgba(148,163,184,.13)); background:rgba(15,20,35,.35); }
+    .scope-chip { font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; letter-spacing:.4px; }
+    .scope-chip.read { background:rgba(34,211,238,.1); color:#67e8f9; border:1px solid rgba(34,211,238,.25); }
+    .scope-chip.write { background:rgba(245,158,11,.1); color:#fcd34d; border:1px solid rgba(245,158,11,.25); }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="ak-page-icon"><svg width="19" height="19"><use href="#i-key"/></svg></div>
+          <div>
+            <h1 class="page-title">API Keys</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Scoped programmatic access to the panel API — automation, scripts and integrations</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="mini-btn primary" onclick="openKeyModal()"><svg width="12" height="12"><use href="#i-plus"/></svg> Create key</button>
+        </div>
+      </div>
+
+      <div class="hint-note" style="margin-bottom:16px;">
+        <b>Usage:</b> send <span class="code-chip">Authorization: Bearer vnmak_…</span> with any <span class="code-chip">/api/*</span> request.
+        A <b>read</b> scope allows GET calls only; <b>read + write</b> also allows POST/PUT/DELETE. API keys skip the browser CSRF check (the key itself authenticates the client),
+        respect the owner's role and per-VM ownership, and every use is stamped with <b>last used</b> below plus the usual audit trail.
+      </div>
+
+      <div class="card" style="padding:18px;">
+        <div id="keyList" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="sk" style="height:60px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+<!-- Create key modal -->
+<div class="modal-overlay" id="keyModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="17" height="17"><use href="#i-key"/></svg> Create API Key</div>
+      <button class="modal-close" onclick="closeModal('keyModal')"><svg width="15" height="15"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <label class="pform-label">Key name</label>
+      <input class="pinput" id="keyName" placeholder="monitoring-agent" style="margin-bottom:14px;">
+      <label class="pform-label">Scopes</label>
+      <div style="display:flex; gap:16px; margin-bottom:4px;">
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary); cursor:pointer;">
+          <input type="checkbox" id="scopeRead" checked style="accent-color:#22d3ee;"> read (GET)
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary); cursor:pointer;">
+          <input type="checkbox" id="scopeWrite" style="accent-color:#22d3ee;"> write (POST/PUT/DELETE)
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('keyModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createKey()">Generate Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reveal-once modal -->
+<div class="modal-overlay" id="keyRevealModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="17" height="17"><use href="#i-key"/></svg> Your new API key</div>
+      <button class="modal-close" onclick="closeModal('keyRevealModal')"><svg width="15" height="15"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="hint-note" style="margin-bottom:12px; border-color:rgba(245,158,11,.3); background:rgba(245,158,11,.07);">
+        <b>Copy it now</b> — the full key is shown only once. Only its SHA-256 hash is stored server-side.
+      </div>
+      <div class="code-chip" id="keyRevealValue" style="display:block; padding:12px; font-size:13px; user-select:all;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="copyKey()"><svg width="13" height="13"><use href="#i-copy"/></svg> Copy</button>
+      <button class="btn btn-primary" onclick="closeModal('keyRevealModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+let lastKey = '';
+
+async function loadKeys() {
+  const box = document.getElementById('keyList');
+  try {
+    const res = await fetch('/api/api-keys');
+    if (!res.ok) { box.innerHTML = '<div class="pempty">Could not load keys</div>'; return; }
+    const d = await res.json();
+    const keys = d.keys || [];
+    if (!keys.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-key"/></svg></div>
+        <div class="pe-title">No API keys yet</div>
+        <div class="pe-sub">Create a scoped key to drive the panel from scripts, cron jobs or monitoring systems.</div></div>`;
+      return;
+    }
+    box.innerHTML = keys.map(k => `
+      <div class="key-row" style="${k.revoked ? 'opacity:.5;' : ''}">
+        <div style="width:36px; height:36px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:rgba(34,211,238,.09); border:1px solid rgba(34,211,238,.2); color:#67e8f9;">
+          <svg width="16" height="16"><use href="#i-key"/></svg>
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13.5px; font-weight:650; color:var(--text-primary);">${esc(k.name)}
+            ${k.revoked ? '<span class="pill cancelled">revoked</span>' : ''}
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:3px; display:flex; gap:10px; flex-wrap:wrap;">
+            <span class="code-chip">${esc(k.prefix)}</span>
+            <span>created ${fmt.rel(k.created_at)}</span>
+            <span>last used ${k.last_used ? fmt.rel(k.last_used) : 'never'}</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          ${(k.scopes || []).map(s => `<span class="scope-chip ${esc(s)}">${esc(s)}</span>`).join('')}
+        </div>
+        ${!k.revoked ? `<button class="mini-btn danger" onclick="revokeKey(${k.id})">Revoke</button>` : ''}
+      </div>`).join('');
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load keys</div>'; }
+}
+
+function openKeyModal() { openModal('keyModal'); }
+
+async function createKey() {
+  const name = document.getElementById('keyName').value.trim();
+  const scopes = [];
+  if (document.getElementById('scopeRead').checked) scopes.push('read');
+  if (document.getElementById('scopeWrite').checked) scopes.push('write');
+  if (!scopes.length) return VNM.toast('Select at least one scope', 'error');
+  const res = await fetch('/api/api-keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, scopes }) });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not create key', 'error');
+  closeModal('keyModal');
+  lastKey = d.key;
+  document.getElementById('keyRevealValue').textContent = d.key;
+  openModal('keyRevealModal');
+  document.getElementById('keyName').value = '';
+  loadKeys();
+}
+
+function copyKey() {
+  navigator.clipboard.writeText(lastKey).then(
+    () => VNM.toast('Key copied to clipboard', 'success'),
+    () => VNM.toast('Copy failed — select the text manually', 'error')
+  );
+}
+
+async function revokeKey(id) {
+  if (!confirm('Revoke this API key? Clients using it will immediately get 401.')) return;
+  const res = await fetch('/api/api-keys/' + id, { method: 'DELETE' });
+  if (res.ok) { VNM.toast('Key revoked', 'success'); loadKeys(); }
+  else VNM.toast('Could not revoke', 'error');
+}
+
+window.addEventListener('load', loadKeys);
+</script>
+</body>
+</html>

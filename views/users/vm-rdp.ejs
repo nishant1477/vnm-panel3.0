@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title || 'Remote Desktop - VNM Panel' %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+</head>
+<body>
+
+<!-- ============ SVG ICON SPRITE ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="2"/><rect x="2" y="14" width="20" height="7" rx="2"/><line x1="6" y1="6.5" x2="6.01" y2="6.5"/><line x1="6" y1="17.5" x2="6.01" y2="17.5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+    <symbol id="i-restart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></symbol>
+    <symbol id="i-ssh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></symbol>
+    <symbol id="i-mem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-4h14v4"/><path d="M12 12V8"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-scroll" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+    <symbol id="i-unlink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.84 12.25l1.72-1.71a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M5.17 11.75l-1.72 1.71a5 5 0 0 0 7.07 7.07l1.71-1.71"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="2" y1="8" x2="5" y2="8"/><line x1="16" y1="19" x2="16" y2="22"/><line x1="19" y1="16" x2="22" y2="16"/></symbol>
+    <symbol id="i-attach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="i-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/users/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="admin-content" id="pageContent">
+      <div style="text-align: center; padding: 80px;">
+        <div class="spinner spinner-lg" style="margin: 0 auto 16px;"></div>
+        <div style="color: var(--text-muted);">Loading Remote Desktop...</div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+<style>
+  .rdp-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:20px; align-items:start; }
+  @media (max-width: 1050px) { .rdp-grid { grid-template-columns:minmax(0,1fr); } }
+  .rdp-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.5px; }
+  .rdp-badge i { width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block; }
+  .rdp-steps { list-style:none; margin:14px 0 0; padding:0; display:grid; gap:10px; }
+  .rdp-steps li { display:flex; align-items:center; gap:12px; font-size:13px; color:var(--text-muted); }
+  .rdp-steps .dot { width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; border:1px solid var(--border-subtle,rgba(255,255,255,.12)); flex-shrink:0; }
+  .rdp-steps li.done { color:var(--text-primary); } .rdp-steps li.done .dot { background:rgba(16,185,129,.15); color:#10B981; border-color:rgba(16,185,129,.4); }
+  .rdp-steps li.active { color:var(--text-primary); font-weight:600; } .rdp-steps li.active .dot { background:rgba(99,102,241,.18); color:#818cf8; border-color:rgba(99,102,241,.5); }
+  .rdp-steps li.err .dot { background:rgba(239,68,68,.15); color:#EF4444; border-color:rgba(239,68,68,.45); }
+  .rdp-kv { display:grid; grid-template-columns:130px 1fr; gap:8px 12px; font-size:13px; }
+  .rdp-kv .k { color:var(--text-muted); } .rdp-kv .v { color:var(--text-primary); font-family:monospace; word-break:break-all; }
+  .rdp-addr { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; margin-top:14px; border:1px solid rgba(99,102,241,.3); border-radius:10px; background:rgba(99,102,241,.07); font-family:monospace; font-size:15px; color:var(--text-primary); }
+  .rdp-tabs { display:flex; gap:6px; margin-bottom:12px; }
+  .rdp-tabs button { background:transparent; border:1px solid var(--border-subtle,rgba(255,255,255,.12)); color:var(--text-muted); padding:6px 14px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; }
+  .rdp-tabs button.on { background:rgba(99,102,241,.18); color:var(--text-primary); border-color:rgba(99,102,241,.5); }
+  .rdp-how ol { margin:0; padding-left:20px; display:grid; gap:8px; font-size:13px; color:var(--text-secondary,var(--text-muted)); }
+  .rdp-how code { background:rgba(255,255,255,.06); padding:2px 6px; border-radius:5px; font-size:12px; word-break:break-all; }
+  .rdp-note { margin-top:14px; padding:10px 12px; border-radius:8px; font-size:12px; }
+  .rdp-toast { position:fixed; right:20px; bottom:20px; z-index:9999; padding:12px 16px; border-radius:10px; font-size:13px; color:#fff; background:#1f2937; border:1px solid rgba(255,255,255,.15); box-shadow:0 8px 30px rgba(0,0,0,.4); }
+</style>
+
+<script>
+const vmId = <%= vmId %>;
+const VM_URL = '/vm/' + vmId;
+const LIST_URL = '/vms';
+
+function svg(id, size = 14) { return `<svg width="${size}" height="${size}"><use href="#${id}"/></svg>`; }
+function escHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function toast(msg, bad) {
+  const t = document.createElement('div'); t.className = 'rdp-toast'; t.textContent = msg;
+  if (bad) t.style.borderColor = 'rgba(239,68,68,.6)';
+  document.body.appendChild(t); setTimeout(() => t.remove(), 4500);
+}
+
+let vmInfo = null, st = null, pollTimer = null, osTab = 'windows';
+
+const BADGES = {
+  online:          ['ONLINE', '#10B981', 'rgba(16,185,129,.12)'],
+  offline:         ['OFFLINE', '#94A3B8', 'rgba(148,163,184,.14)'],
+  installing:      ['SETTING UP', '#818cf8', 'rgba(99,102,241,.14)'],
+  waiting:         ['WAITING FOR VM', '#38bdf8', 'rgba(56,189,248,.12)'],
+  pending_restart: ['RESTART REQUIRED', '#F59E0B', 'rgba(245,158,11,.14)'],
+  unsupported:     ['UNSUPPORTED OS', '#EF4444', 'rgba(239,68,68,.12)'],
+  error:           ['ERROR', '#EF4444', 'rgba(239,68,68,.12)'],
+  disabled:        ['NOT ENABLED', '#94A3B8', 'rgba(148,163,184,.14)']
+};
+const badge = (s) => { const b = BADGES[s] || BADGES.disabled; return `<span class="rdp-badge" style="color:${b[1]};background:${b[2]};"><i></i>${b[0]}</span>`; };
+
+// Which of the four setup stages the server message belongs to
+function stageOf(msg) {
+  const m = String(msg || '').toLowerCase();
+  if (/verif/.test(m)) return 4;
+  if (/allocat|activat|port forward|host port/.test(m)) return 3;
+  if (/install|xrdp|desktop|xsession|os:|service|configur|apt/.test(m)) return 2;
+  return 1;
+}
+function stepsHtml() {
+  const names = ['Connect to the VM over SSH', 'Install xrdp and a desktop', (st.network === 'direct' ? 'Use the VM address (no forward needed)' : 'Open a host port and forward it'), 'Verify the RDP connection'];
+  let cur = 0, errAt = 0;
+  if (st.status === 'online' || st.status === 'offline' || st.status === 'pending_restart') cur = 5;
+  else if (st.status === 'installing') cur = stageOf(st.message);
+  else if (st.status === 'error' || st.status === 'unsupported') errAt = 1;
+  return `<ul class="rdp-steps">${names.map((n, i) => {
+    const idx = i + 1;
+    const cls = errAt === idx ? 'err' : (idx < cur ? 'done' : (idx === cur ? 'active' : ''));
+    const mark = cls === 'done' ? '✓' : (cls === 'err' ? '!' : idx);
+    return `<li class="${cls}"><span class="dot">${mark}</span>${escHtml(n)}${cls === 'active' ? ' <span class="spinner" style="display:inline-block;width:12px;height:12px;margin-left:4px;"></span>' : ''}</li>`;
+  }).join('')}</ul>`;
+}
+
+function connectHtml() {
+  const addr = st.enabled && st.host && st.port ? `${st.host}:${st.port}` : 'ADDRESS:PORT';
+  const user = st.username || 'USER';
+  const how = {
+    windows: `<ol>
+      <li>Click <b>Download .rdp file</b> above and double-click it — or press <code>Win + R</code>, type <code>mstsc</code> and press Enter.</li>
+      <li>If you used <code>mstsc</code>, enter <code>${escHtml(addr)}</code> as the <b>Computer</b>.</li>
+      <li>Username <code>${escHtml(user)}</code>, then the VM's password.</li>
+      <li>Accept the certificate warning (xrdp uses a self-signed certificate). If asked for a session, choose <b>Xorg</b>.</li></ol>`,
+    linux: `<ol>
+      <li><b>Remmina:</b> New connection → Protocol <b>RDP</b> → Server <code>${escHtml(addr)}</code> → Username <code>${escHtml(user)}</code> → Connect.</li>
+      <li><b>Terminal:</b> <code>xfreerdp /v:${escHtml(addr)} /u:${escHtml(user)} /dynamic-resolution +clipboard</code></li>
+      <li>Enter the VM's password, accept the certificate, choose <b>Xorg</b> if asked.</li></ol>`,
+    mac: `<ol>
+      <li>Install <b>Windows App</b> (or Microsoft Remote Desktop) from the App Store.</li>
+      <li>Add PC → PC name <code>${escHtml(addr)}</code> → User account <code>${escHtml(user)}</code>.</li>
+      <li>Or open the downloaded <b>.rdp file</b> with it. Accept the certificate, choose <b>Xorg</b> if asked.</li></ol>`
+  };
+  return `<div class="rdp-tabs">${[['windows', 'Windows'], ['linux', 'Linux'], ['mac', 'macOS']].map(([k, n]) => `<button class="${osTab === k ? 'on' : ''}" onclick="setOsTab('${k}')">${n}</button>`).join('')}</div><div class="rdp-how">${how[osTab]}</div>`;
+}
+function setOsTab(k) { osTab = k; render(); }
+
+function render() {
+  if (!st || !vmInfo) return;
+  const running = st.vm_status === 'running';
+  const busy = st.status === 'installing';
+  const vm = vmInfo;
+  const direct = st.network === 'direct';
+  const canAuto = !st.enabled && !/windows/i.test(`${vm.os_type || ''} ${vm.template_type || ''}`) && String(vm.template_type || '') !== 'iso-installer';
+
+  let actions = '';
+  if (!st.enabled || st.status === 'error' || st.status === 'unsupported') {
+    actions = `<button class="btn btn-primary" onclick="enableRdp()" ${(!running || busy) ? 'disabled' : ''} title="${!running ? 'Start the VM first' : ''}">${svg('i-power', 14)} ${busy ? 'Setting up…' : 'Enable RDP'}</button>`;
+  } else {
+    actions = `<button class="btn btn-ghost" onclick="enableRdp()" ${(!running || busy) ? 'disabled' : ''} title="Safe to repeat: checks xrdp and the forward again">${svg('i-refresh', 14)} Re-run setup</button>
+               <button class="btn btn-warning" onclick="disableRdp()" ${busy ? 'disabled' : ''}>${svg('i-unlink', 14)} Disable RDP</button>`;
+  }
+
+  let msg = '';
+  if (st.message && st.status !== 'online' && st.status !== 'disabled') {
+    const bad = st.status === 'error' || st.status === 'unsupported';
+    msg = `<div class="rdp-note" style="color:${bad ? '#EF4444' : 'var(--text-secondary,var(--text-muted))'};background:${bad ? 'rgba(239,68,68,.08)' : 'rgba(148,163,184,.10)'};">${escHtml(st.message)}</div>`;
+  } else if (st.status === 'disabled') {
+    msg = `<div class="rdp-note" style="background:rgba(148,163,184,.08);color:var(--text-muted);">RDP is not set up for this VM yet. ${running ? 'Click <b>Enable RDP</b>: this installs xrdp and a desktop inside the VM (Debian / Ubuntu) and gives you a connection address.' : 'Start the VM, then click <b>Enable RDP</b> — or switch on automatic setup below.'}</div>`;
+  }
+  const auto = canAuto ? `
+    <label style="display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:12px 14px;border:1px solid var(--border-subtle,rgba(255,255,255,.12));border-radius:10px;cursor:pointer;">
+      <input type="checkbox" id="autoBox" ${st.auto ? 'checked' : ''} onchange="toggleAuto(this.checked)" style="margin-top:3px;">
+      <span><span style="color:var(--text-primary);font-size:13px;font-weight:600;">Set up RDP automatically</span><br>
+      <span style="font-size:12px;color:var(--text-muted);">As soon as this VM is running and reachable (handy for a brand-new VM that is still doing its first boot).</span></span>
+    </label>` : '';
+
+  const statusCard = `
+    <div class="card">
+      <div class="card-header"><div class="card-title"><span style="color:#6366F1;display:inline-flex;">${svg('i-server', 18)}</span> Remote Desktop status</div>${badge(st.status)}</div>
+      <div class="card-body">
+        ${stepsHtml()}
+        ${msg}
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">${actions}</div>
+        ${auto}
+      </div>
+    </div>`;
+
+  const connection = st.enabled ? `
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header"><div class="card-title"><span style="color:#10B981;display:inline-flex;">${svg('i-link', 18)}</span> Connection</div></div>
+      <div class="card-body">
+        <div class="rdp-kv">
+          <div class="k">Host</div><div class="v">${escHtml(st.host || '—')}</div>
+          <div class="k">Port</div><div class="v">${escHtml(st.port || '—')}${direct ? ' <span style="color:var(--text-muted);font-family:inherit;">(VM\'s own address)</span>' : ''}</div>
+          <div class="k">Username</div><div class="v">${escHtml(st.username || '—')}</div>
+          <div class="k">Guest OS</div><div class="v">${escHtml(st.guest_os || '—')}</div>
+          <div class="k">Password</div><div class="v" style="font-family:inherit;">The VM's password (not shown here)</div>
+        </div>
+        <div class="rdp-addr"><span id="rdpAddr">${escHtml(st.host)}:${escHtml(st.port)}</span>
+          <button class="btn btn-ghost btn-sm" onclick="copyText(document.getElementById('rdpAddr').textContent, 'Address copied')">${svg('i-copy', 13)} Copy</button></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+          <a class="btn btn-primary btn-sm" href="/api/vms/${vmId}/rdp/file" download>${svg('i-attach', 13)} Download .rdp file</a>
+          <button class="btn btn-outline btn-sm" onclick="copyText('xfreerdp /v:' + document.getElementById('rdpAddr').textContent + ' /u:${escHtml(st.username || '')} /dynamic-resolution +clipboard', 'Command copied')">${svg('i-terminal', 13)} Copy xfreerdp command</button>
+        </div>
+        ${st.warning ? `<div class="rdp-note" style="color:#F59E0B;background:rgba(245,158,11,.10);">⚠ ${escHtml(st.warning)}</div>` : ''}
+      </div>
+    </div>` : `
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header"><div class="card-title"><span style="color:#10B981;display:inline-flex;">${svg('i-link', 18)}</span> Connection</div></div>
+      <div class="card-body"><div style="font-size:13px;color:var(--text-muted);">The connection address, username and a downloadable <b>.rdp</b> file appear here once RDP is enabled.</div></div>
+    </div>`;
+
+  const right = `
+    <div class="card">
+      <div class="card-header"><div class="card-title"><span style="color:#EC4899;display:inline-flex;">${svg('i-info', 18)}</span> How to connect</div></div>
+      <div class="card-body">${connectHtml()}</div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header"><div class="card-title"><span style="color:#F59E0B;display:inline-flex;">${svg('i-shield', 18)}</span> Good to know</div></div>
+      <div class="card-body"><ul style="margin:0;padding-left:18px;display:grid;gap:8px;font-size:12px;color:var(--text-muted);">
+        <li>Works for <b>Debian and Ubuntu</b> VMs. The first setup downloads packages (XFCE desktop) and can take a few minutes.</li>
+        <li>${direct ? 'This VM has its own address, so RDP uses it directly on port 3389.' : 'For NAT VMs the host forwards a dedicated port (' + escHtml(st.port || '33890–34889') + ') to the VM — that TCP port must be open in the host firewall.'}</li>
+        <li>Prefer a regular user over <code>root</code> for remote desktop logins.</li>
+        <li>Disabling RDP releases the port; xrdp stays installed so enabling again is fast.</li>
+        <li>Reinstalling the VM removes RDP — enable it again afterwards.</li>
+      </ul></div>
+    </div>`;
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="page-header" style="align-items:center;">
+      <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;">
+        <a href="${VM_URL}" style="color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-size:13px;flex-shrink:0;">${svg('i-back', 14)} Back to VM</a>
+        <div style="min-width:0;">
+          <h1 class="page-title" style="margin:0;">Remote Desktop (RDP)</h1>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:3px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span style="background:rgba(99,102,241,.1);color:#6366F1;padding:2px 8px;border-radius:5px;font-family:monospace;font-weight:600;">#${vm.vm_id}</span>
+            <span>${escHtml(vm.vm_name)}</span><span style="opacity:.6;">·</span><span>${escHtml(vm.template_name || vm.os_type || 'Custom OS')}</span><span style="opacity:.6;">·</span>
+            <span style="color:${vm.status === 'running' ? '#10B981' : '#94A3B8'};">● VM ${escHtml(vm.status)}</span>
+          </p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a href="${VM_URL}" class="btn btn-outline btn-sm">${svg('i-info', 13)} VM details</a>
+        <a href="${VM_URL}/console" class="btn btn-ghost btn-sm">${svg('i-terminal', 13)} Console</a>
+      </div>
+    </div>
+    <div class="rdp-grid"><div>${statusCard}${connection}</div><div>${right}</div></div>`;
+}
+
+async function loadVm() {
+  const r = await fetch(`/api/vms/${vmId}`);
+  if (!r.ok) throw new Error('VM not found or access denied');
+  vmInfo = await r.json();
+}
+async function loadStatus() {
+  clearTimeout(pollTimer);
+  let next = 8000;
+  try {
+    const r = await fetch(`/api/vms/${vmId}/rdp`);
+    if (r.ok) {
+      st = await r.json();
+      const vr = await fetch(`/api/vms/${vmId}`); if (vr.ok) vmInfo = await vr.json();
+      render();
+      if (st.status === 'installing') next = 2000; else if (st.status === 'waiting') next = 5000;
+    }
+  } catch (e) { /* transient */ }
+  pollTimer = setTimeout(loadStatus, next);
+}
+async function post(path, body) {
+  const r = await fetch(`/api/vms/${vmId}/rdp/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+  const j = await r.json().catch(() => ({}));
+  return { ok: r.ok, j };
+}
+async function enableRdp() {
+  const { ok, j } = await post('enable');
+  toast(ok ? 'RDP setup started — this can take a few minutes on a fresh VM' : (j.error || 'Could not enable RDP'), !ok);
+  loadStatus();
+}
+async function disableRdp() {
+  if (!confirm('Disable RDP for this VM? The host port is released. xrdp stays installed in the VM.')) return;
+  const { ok, j } = await post('disable');
+  toast(ok ? 'RDP disabled' : (j.error || 'Could not disable RDP'), !ok);
+  loadStatus();
+}
+async function toggleAuto(on) {
+  const { ok, j } = await post('auto', { enabled: !!on });
+  toast(ok ? (on ? 'RDP will be set up automatically' : 'Automatic setup turned off') : (j.error || 'Could not change the setting'), !ok);
+  loadStatus();
+}
+function copyText(t, okMsg) { if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast(okMsg || 'Copied')); }
+
+(async () => {
+  try { await loadVm(); await loadStatus(); }
+  catch (e) {
+    document.getElementById('pageContent').innerHTML = `<div class="empty-state"><div class="empty-state-title">VM not found</div><div class="empty-state-desc">${escHtml(e.message)}</div><a href="${LIST_URL}" class="btn btn-primary">Back to VMs</a></div>`;
+  }
+})();
+</script>
+  <script src="/js/vnm-motion.js" defer></script>
+</body>
+</html>

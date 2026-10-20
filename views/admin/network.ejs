@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .net-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .tabline { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+    .proto-badge { font-size:9.5px; font-weight:800; letter-spacing:.5px; padding:2px 7px; border-radius:6px; }
+    .proto-badge.tcp { background:rgba(34,211,238,.14); color:#67e8f9; border:1px solid rgba(34,211,238,.25); }
+    .proto-badge.udp { background:rgba(192,132,252,.14); color:#d8b4fe; border:1px solid rgba(192,132,252,.25); }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="i-arrows" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="net-page-icon"><svg width="19" height="19"><use href="#i-globe"/></svg></div>
+          <div>
+            <h1 class="page-title">Network Center</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">IP allocations with conflict detection, fleet-wide port forwards and per-VM firewall rules</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="mini-btn" onclick="loadAll()"><svg width="13" height="13"><use href="#i-refresh"/></svg> Refresh</button>
+        </div>
+      </div>
+
+      <div class="vtab-bar" style="margin-bottom:18px;">
+        <button class="vtab active" data-tab="ips"><svg width="13" height="13"><use href="#i-globe"/></svg> IP Allocations</button>
+        <button class="vtab" data-tab="forwards"><svg width="13" height="13"><use href="#i-arrows"/></svg> Port Forwards</button>
+        <button class="vtab" data-tab="firewall"><svg width="13" height="13"><use href="#i-shield"/></svg> Firewall Rules</button>
+      </div>
+
+      <!-- IP allocations -->
+      <div class="vtab-panel active" id="tab-ips">
+        <div class="card" style="padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Managed IP Pool</div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Duplicate and in-use detection runs on every entry — conflicts are rejected with the exact conflicting VM or allocation</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <input class="pinput" id="newIp" placeholder="10.100.0.15" style="width:150px;">
+              <input class="pinput" id="newIpLabel" placeholder="Label (web-server)" style="width:170px;">
+              <button class="mini-btn primary" onclick="addIp()"><svg width="12" height="12"><use href="#i-plus"/></svg> Add</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="ptable" id="ipTable">
+              <thead><tr><th>IP</th><th>Label</th><th>Status</th><th>Assigned VM</th><th>Added</th><th style="text-align:right;">Actions</th></tr></thead>
+              <tbody id="ipBody"><tr><td colspan="6"><div class="sk" style="height:36px;"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Port forwards -->
+      <div class="vtab-panel" id="tab-forwards">
+        <div class="card" style="padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <div>
+              <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Fleet Port Forwards</div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Every custom TCP/UDP mapping across all VMs and nodes</div>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="ptable">
+              <thead><tr><th>VM</th><th>Node</th><th>Proto</th><th>Host</th><th>Guest</th><th>Label</th></tr></thead>
+              <tbody id="fwBody"><tr><td colspan="6"><div class="sk" style="height:36px;"></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Firewall -->
+      <div class="vtab-panel" id="tab-firewall">
+        <div class="card" style="padding:18px; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Per-VM Firewall Rules</div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Rule manager with safe defaults; NAT VMs only expose explicitly forwarded ports at the host boundary</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <select class="pselect" id="fwVm" style="width:210px;" onchange="loadFirewall()"></select>
+              <button class="mini-btn" onclick="applyDefaults()"><svg width="12" height="12"><use href="#i-shield"/></svg> Safe defaults</button>
+              <button class="mini-btn primary" onclick="openRuleForm()"><svg width="12" height="12"><use href="#i-plus"/></svg> Add rule</button>
+            </div>
+          </div>
+          <div id="firewallBox" style="overflow-x:auto;"></div>
+        </div>
+        <div class="hint-note">
+          <b>Enforcement model (honest mode):</b> for NAT VMs the host boundary is enforced by QEMU itself — only ports with a forwarding rule are reachable from outside.
+          These firewall rules document and validate each VM's intended exposure, and the "safe defaults" preset applies the standard allow-SSH/HTTP/HTTPS + deny-rest baseline.
+          Bridge-mode VMs sit directly on the LAN and should be filtered at the network's real firewall.
+        </div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+<!-- Add firewall rule modal -->
+<div class="modal-overlay" id="fwModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="17" height="17"><use href="#i-shield"/></svg> Add Firewall Rule</div>
+      <button class="modal-close" onclick="closeModal('fwModal')"><svg width="15" height="15"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label class="pform-label">Direction</label>
+          <select class="pselect" id="fwrDir"><option value="in">inbound</option><option value="out">outbound</option></select>
+        </div>
+        <div>
+          <label class="pform-label">Protocol</label>
+          <select class="pselect" id="fwrProto"><option value="tcp">TCP</option><option value="udp">UDP</option><option value="any">any</option></select>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label class="pform-label">Port start</label>
+          <input class="pinput" id="fwrPortStart" type="number" min="1" max="65535" placeholder="22">
+        </div>
+        <div>
+          <label class="pform-label">Port end (optional)</label>
+          <input class="pinput" id="fwrPortEnd" type="number" min="1" max="65535" placeholder="= start">
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label class="pform-label">Action</label>
+          <select class="pselect" id="fwrAction"><option value="allow">allow</option><option value="deny">deny</option></select>
+        </div>
+        <div>
+          <label class="pform-label">Source</label>
+          <input class="pinput" id="fwrSource" placeholder="any / 10.0.0.0/8">
+        </div>
+      </div>
+      <label class="pform-label">Note</label>
+      <input class="pinput" id="fwrNote" placeholder="Allow SSH from office VPN">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('fwModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addFirewallRule()">Add Rule</button>
+    </div>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+let vmsCache = [];
+
+document.querySelectorAll('.vtab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.vtab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.vtab-panel').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+}));
+
+async function loadVms() {
+  try {
+    const res = await fetch('/api/admin/vms');
+    if (res.ok) vmsCache = await res.json();
+    const sel = document.getElementById('fwVm');
+    sel.innerHTML = vmsCache.map(v => `<option value="${v.vm_id}">${esc(v.vm_name)}</option>`).join('') || '<option value="">No VMs</option>';
+  } catch (e) {}
+}
+
+function loadAll() { loadIps(); loadForwards(); loadFirewall(); }
+
+async function loadIps() {
+  const body = document.getElementById('ipBody');
+  try {
+    const res = await fetch('/api/network/ips');
+    const rows = await res.json();
+    if (!rows.length) {
+      body.innerHTML = `<tr><td colspan="6"><div class="pempty"><div class="pe-title">No IPs allocated yet</div>
+        <div class="pe-sub">Track which addresses in your VM subnet are reserved or assigned — the panel rejects duplicates and IPs already used by a VM.</div></div></td></tr>`;
+      return;
+    }
+    body.innerHTML = rows.map(r => `
+      <tr>
+        <td class="mono" style="color:var(--text-primary); font-weight:650;">${esc(r.ip)}</td>
+        <td>${esc(r.label || '—')}</td>
+        <td><span class="pill ${r.status === 'assigned' ? 'running' : 'info'}">${esc(r.status)}</span></td>
+        <td>${r.vm_name ? `<a href="/admin/vm/${r.vm_id}" style="color:var(--accent-primary); text-decoration:none;">${esc(r.vm_name)}</a>` : '—'}</td>
+        <td>${fmt.rel(r.created_at)}</td>
+        <td><div class="row-actions">
+          ${r.vm_name
+            ? `<button class="mini-btn" onclick="assignIp(${r.id}, null)">Release</button>`
+            : `<button class="mini-btn" onclick="assignIpPrompt(${r.id})">Assign</button>`}
+          <button class="mini-btn danger" onclick="delIp(${r.id})"><svg width="11" height="11"><use href="#i-trash"/></svg></button>
+        </div></td>
+      </tr>`).join('');
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Could not load IPs</td></tr>'; }
+}
+
+async function addIp() {
+  const ip = document.getElementById('newIp').value.trim();
+  const label = document.getElementById('newIpLabel').value.trim();
+  const res = await fetch('/api/network/ips', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ip, label }) });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not add IP', 'error');
+  document.getElementById('newIp').value = '';
+  document.getElementById('newIpLabel').value = '';
+  VNM.toast('IP added', 'success');
+  loadIps();
+}
+
+function assignIpPrompt(id) {
+  const names = vmsCache.map(v => `${v.vm_id}: ${v.vm_name}`).join('\n');
+  const input = prompt('Assign to which VM id?\n' + names);
+  if (!input) return;
+  assignIp(id, parseInt(input, 10));
+}
+async function assignIp(id, vmId) {
+  const res = await fetch('/api/network/ips/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vm_id: vmId }) });
+  if (res.ok) { VNM.toast(vmId ? 'IP assigned' : 'IP released', 'success'); loadIps(); }
+  else VNM.toast('Could not update', 'error');
+}
+async function delIp(id) {
+  if (!confirm('Remove this IP allocation?')) return;
+  const res = await fetch('/api/network/ips/' + id, { method: 'DELETE' });
+  if (res.ok) loadIps(); else VNM.toast('Could not delete', 'error');
+}
+
+async function loadForwards() {
+  const body = document.getElementById('fwBody');
+  try {
+    const res = await fetch('/api/network/overview');
+    const d = await res.json();
+    const rows = d.forwards || [];
+    if (!rows.length) {
+      body.innerHTML = `<tr><td colspan="6"><div class="pempty"><div class="pe-title">No custom port forwards</div>
+        <div class="pe-sub">Add TCP/UDP mappings when creating a VM, or from the VM's detail page. SSH forwards are managed automatically per node.</div></div></td></tr>`;
+      return;
+    }
+    body.innerHTML = rows.map(f => `
+      <tr>
+        <td><a href="/admin/vm/${f.vm_id}" style="color:var(--accent-primary); text-decoration:none;">${esc(f.vm_name)}</a></td>
+        <td>${esc(f.node_name || 'panel')}</td>
+        <td><span class="proto-badge ${esc(f.protocol)}">${esc(String(f.protocol).toUpperCase())}</span></td>
+        <td class="mono">:${esc(f.host_port)}</td>
+        <td class="mono">:${esc(f.guest_port)}</td>
+        <td>${esc(f.label || '—')}</td>
+      </tr>`).join('');
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Could not load forwards</td></tr>'; }
+}
+
+async function loadFirewall() {
+  const box = document.getElementById('firewallBox');
+  const vmId = document.getElementById('fwVm').value;
+  if (!vmId) { box.innerHTML = '<div class="pempty">No VM selected</div>'; return; }
+  try {
+    const res = await fetch('/api/vms/' + vmId + '/firewall');
+    const rules = await res.json();
+    if (!rules.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-shield"/></svg></div>
+        <div class="pe-title">No rules for this VM</div>
+        <div class="pe-sub">Apply the safe-default preset (allow SSH/HTTP/HTTPS, deny the rest) or add rules individually.</div></div>`;
+      return;
+    }
+    box.innerHTML = `<table class="ptable">
+      <thead><tr><th>#</th><th>Dir</th><th>Proto</th><th>Ports</th><th>Source</th><th>Action</th><th>Priority</th><th>Note</th><th style="text-align:right;">Actions</th></tr></thead>
+      <tbody>${rules.map(r => `
+        <tr style="${r.enabled ? '' : 'opacity:.45;'}">
+          <td class="mono">${r.id}</td>
+          <td>${esc(r.direction)}</td>
+          <td><span class="proto-badge ${r.protocol === 'udp' ? 'udp' : 'tcp'}">${esc(String(r.protocol).toUpperCase())}</span></td>
+          <td class="mono">${r.port_start}${r.port_end && r.port_end !== r.port_start ? ' – ' + r.port_end : ''}</td>
+          <td class="mono">${esc(r.source || 'any')}</td>
+          <td><span class="pill ${r.action === 'allow' ? 'succeeded' : 'failed'}">${esc(r.action)}</span></td>
+          <td class="mono">${r.priority}</td>
+          <td>${esc(r.note || '—')}</td>
+          <td><div class="row-actions">
+            <button class="mini-btn" onclick="toggleFw(${r.id}, ${r.enabled ? 'false' : 'true'})">${r.enabled ? 'Disable' : 'Enable'}</button>
+            <button class="mini-btn danger" onclick="delFw(${r.id})"><svg width="11" height="11"><use href="#i-trash"/></svg></button>
+          </div></td>
+        </tr>`).join('')}</tbody></table>`;
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load rules</div>'; }
+}
+
+function openRuleForm() {
+  if (!document.getElementById('fwVm').value) return VNM.toast('Select a VM first', 'error');
+  openModal('fwModal');
+}
+async function addFirewallRule() {
+  const vmId = document.getElementById('fwVm').value;
+  const res = await fetch('/api/vms/' + vmId + '/firewall', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      direction: document.getElementById('fwrDir').value,
+      protocol: document.getElementById('fwrProto').value,
+      port_start: document.getElementById('fwrPortStart').value,
+      port_end: document.getElementById('fwrPortEnd').value || undefined,
+      action: document.getElementById('fwrAction').value,
+      source: document.getElementById('fwrSource').value || 'any',
+      note: document.getElementById('fwrNote').value,
+    })
+  });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not add rule', 'error');
+  closeModal('fwModal');
+  VNM.toast('Rule added', 'success');
+  loadFirewall();
+}
+async function applyDefaults() {
+  const vmId = document.getElementById('fwVm').value;
+  if (!vmId) return VNM.toast('Select a VM first', 'error');
+  const res = await fetch('/api/vms/' + vmId + '/firewall/defaults', { method: 'POST' });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not apply defaults', 'error');
+  VNM.toast('Safe defaults applied', 'success');
+  loadFirewall();
+}
+async function toggleFw(id, enabled) {
+  const vmId = document.getElementById('fwVm').value;
+  await fetch('/api/firewall/rules/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: enabled === 'true' }) });
+  loadFirewall();
+}
+async function delFw(id) {
+  if (!confirm('Delete this rule?')) return;
+  await fetch('/api/firewall/rules/' + id, { method: 'DELETE' });
+  loadFirewall();
+}
+
+window.addEventListener('load', async () => {
+  await loadVms();
+  loadAll();
+});
+</script>
+</body>
+</html>

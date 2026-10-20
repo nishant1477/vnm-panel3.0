@@ -1,0 +1,124 @@
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <script>
+        // CSRF: transparently attach the token to same-origin, state-changing
+        // fetch() calls so existing frontend code doesn't need to change.
+        //
+        // AUDIT FIX (#7/#23 - frontend JSON robustness): this file is
+        // included by every authenticated page (admin AND user views both
+        // pull in this same footer), so it's the single place a global fix
+        // reaches the ~90 call sites across the app that do
+        // `const data = await res.json()` with no protection. Previously,
+        // any backend failure that returned something other than JSON - an
+        // HTML error page from a reverse proxy on a 502/503, a truly empty
+        // body, a plain-text error - made that .json() call throw
+        // "Unexpected end of JSON input" (or a SyntaxError for the HTML
+        // case), which existing page code didn't catch, so the user saw a
+        // raw, unhandled exception instead of any usable message.
+        //
+        // Fix: patch every fetch() response's .json() method so it NEVER
+        // throws. It still resolves with the real parsed JSON on the
+        // (overwhelmingly common) success path, unchanged. On a parse
+        // failure it resolves to a small, consistent error object instead
+        // of rejecting - so existing code like
+        // `if (!res.ok) showError(data.error)` keeps working exactly as
+        // written, it just gets a sensible message instead of a crash.
+        (function() {
+            function getCsrfToken() {
+                const match = document.cookie.match(/(?:^|; )csrf_token=([^;]*)/);
+                return match ? decodeURIComponent(match[1]) : null;
+            }
+
+            function describeStatus(status) {
+                if (status === 0) return 'Network error - the server did not respond.';
+                if (status >= 500) return `Server error (HTTP ${status}). Check the server logs.`;
+                if (status === 404) return 'The requested resource was not found (HTTP 404).';
+                if (status >= 400) return `Request failed (HTTP ${status}).`;
+                return `Unexpected response (HTTP ${status}).`;
+            }
+
+            function patchResponseJson(response) {
+                const originalJson = response.json.bind(response);
+                response.json = async function() {
+                    let text;
+                    try {
+                        text = await response.clone().text();
+                    } catch (e) {
+                        return { error: describeStatus(response.status), _nonJson: true };
+                    }
+                    if (!text || !text.trim()) {
+                        // Empty body - common on 502/504 from a proxy, or a
+                        // handler that crashed before writing a response.
+                        return { error: describeStatus(response.status), _nonJson: true };
+                    }
+                    try {
+                        return await originalJson();
+                    } catch (e) {
+                        // Not valid JSON - likely an HTML error page or
+                        // plain-text message. Surface the status and, if
+                        // short, the raw text (helps debugging) without
+                        // ever throwing into caller code.
+                        const snippet = text.length < 200 ? text.trim() : '';
+                        return {
+                            error: snippet ? `${describeStatus(response.status)} ${snippet}` : describeStatus(response.status),
+                            _nonJson: true
+                        };
+                    }
+                };
+                return response;
+            }
+
+            const originalFetch = window.fetch;
+            window.fetch = function(input, init) {
+                init = init || {};
+                const method = (init.method || 'GET').toUpperCase();
+                const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+                const url = typeof input === 'string' ? input : (input && input.url) || '';
+                const isSameOrigin = url.startsWith('/') || url.startsWith(window.location.origin);
+                if (isMutating && isSameOrigin) {
+                    const token = getCsrfToken();
+                    if (token) {
+                        init.headers = Object.assign({}, init.headers, { 'X-CSRF-Token': token });
+                    }
+                }
+                return originalFetch.call(this, input, init)
+                    .then(patchResponseJson)
+                    .catch((networkErr) => {
+                        // fetch() itself rejected (DNS failure, connection
+                        // refused, disconnected mid-request) - previously
+                        // this surfaced as an unhandled rejection wherever
+                        // the caller didn't wrap fetch() in try/catch.
+                        // Return a fake Response-like object so
+                        // `const data = await res.json()` and `res.ok`
+                        // checks both keep working.
+                        console.error('[fetch] network error:', networkErr);
+                        return {
+                            ok: false,
+                            status: 0,
+                            json: async () => ({ error: 'Network error - could not reach the server.', _nonJson: true })
+                        };
+                    });
+            };
+        })();
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) {
+                sidebar.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('open');
+            }
+        }
+        function closeSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('open');
+        }
+    </script>
+
+    <!-- Premium tier runtime: license modal, PRO chip, 402 interception.
+         Loaded on every authenticated page (admin + user). -->
+    <script src="/js/vnm-premium.js" defer></script>

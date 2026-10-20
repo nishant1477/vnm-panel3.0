@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .bk-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .bk-row { display:flex; align-items:center; gap:14px; padding:13px 16px; border-radius:13px; border:1px solid var(--border-subtle, rgba(148,163,184,.13)); background:rgba(15,20,35,.35); transition:all .2s ease; }
+    .bk-row:hover { border-color:rgba(34,211,238,.3); }
+    .bk-icon { width:36px; height:36px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.22); color:#6ee7b7; }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-backup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6"/><path d="M10 2v6.5L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V2"/><line x1="7" y1="15" x2="17" y2="15"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="bk-page-icon"><svg width="19" height="19"><use href="#i-backup"/></svg></div>
+          <div>
+            <h1 class="page-title">Backup Center</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Full-file backups with integrity verification, retention schedules and non-destructive recovery tests</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="mini-btn" onclick="loadAll()"><svg width="13" height="13"><use href="#i-refresh"/></svg> Refresh</button>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:18px;">
+        <div class="ptile">
+          <div class="ptile-label">Total Backups</div>
+          <div class="ptile-value" id="tileCount">—</div>
+          <div class="ptile-sub" id="tileCountSub">&nbsp;</div>
+          <div class="ptile-icon"><svg width="16" height="16"><use href="#i-backup"/></svg></div>
+        </div>
+        <div class="ptile">
+          <div class="ptile-label">Storage Used</div>
+          <div class="ptile-value" id="tileSize">—</div>
+          <div class="ptile-sub">across all nodes</div>
+          <div class="ptile-icon"><svg width="16" height="16"><use href="#i-backup"/></svg></div>
+        </div>
+        <div class="ptile">
+          <div class="ptile-label">Verified</div>
+          <div class="ptile-value" id="tileVerified" style="color:#6ee7b7;">—</div>
+          <div class="ptile-sub">with SHA-256 checksum</div>
+          <div class="ptile-icon" style="background:rgba(52,211,153,.1); border-color:rgba(52,211,153,.2); color:#6ee7b7;"><svg width="16" height="16"><use href="#i-shield"/></svg></div>
+        </div>
+        <div class="ptile">
+          <div class="ptile-label">Snapshots</div>
+          <div class="ptile-value" id="tileSnaps">—</div>
+          <div class="ptile-sub">qcow2 internal, all VMs</div>
+          <div class="ptile-icon" style="background:rgba(129,140,248,.1); border-color:rgba(129,140,248,.2); color:#a5b4fc;"><svg width="16" height="16"><use href="#i-camera"/></svg></div>
+        </div>
+      </div>
+
+      <!-- ============ AUTO BACKUP (premium) ============ -->
+      <div class="card" id="autoBackupCard" style="padding:18px; margin-bottom:18px;">
+        <div class="prem-veil" id="autoBackupVeil">
+          <div class="prem-veil-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Auto Backup is a premium feature</div>
+          <div class="prem-veil-sub">Schedule automatic VM backups with retention windows — set it once and every night is covered. Missed runs never double-fire.</div>
+          <button class="prem-veil-btn" id="autoBackupUnlock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Unlock with license key</button>
+        </div>
+        <div id="autoBackupInner" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Auto Backup</div>
+            <span class="prem-feature-chip" id="autoBackupChip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Premium</span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <select class="pselect" id="abVm" style="width:190px;"></select>
+            <select class="pselect" id="abSpec" style="width:150px;">
+              <option value="daily:03:30">Every night · 03:30</option>
+              <option value="daily:04:00">Every night · 04:00</option>
+              <option value="every:6h">Every 6 hours</option>
+              <option value="every:12h">Every 12 hours</option>
+              <option value="weekly:0:03:30">Weekly · Sun 03:30</option>
+            </select>
+            <input class="pinput" id="abRetention" type="number" min="1" max="90" value="7" title="Keep this many backups (retention)" style="width:76px;" placeholder="Keep">
+            <button class="mini-btn primary" id="abCreate"><svg width="12" height="12"><use href="#i-camera"/></svg> Schedule</button>
+          </div>
+        </div>
+        <div id="abList" style="display:flex; flex-direction:column; gap:10px;"><div class="sk" style="height:56px;"></div></div>
+        </div><!-- /autoBackupInner -->
+      </div>
+
+      <div class="card" style="padding:18px; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div style="font-size:14px; font-weight:750; color:var(--text-primary);">All Backups</div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select class="pselect" id="newBackupVm" style="width:220px;"></select>
+            <button class="mini-btn primary" onclick="createBackup()"><svg width="12" height="12"><use href="#i-backup"/></svg> Back up now</button>
+          </div>
+        </div>
+        <div id="backupList" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="sk" style="height:62px;"></div><div class="sk" style="height:62px;"></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px;">
+        <div style="font-size:14px; font-weight:750; color:var(--text-primary); margin-bottom:14px;">VM Snapshots (qcow2 internal)</div>
+        <div id="snapList" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="sk" style="height:62px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+let vmsCache = [];
+
+async function loadVms() {
+  try {
+    const res = await fetch('/api/admin/vms');
+    if (res.ok) vmsCache = await res.json();
+    const sel = document.getElementById('newBackupVm');
+    sel.innerHTML = vmsCache.map(v => `<option value="${v.vm_id}">${esc(v.vm_name)} (#${v.vm_id}, ${esc(v.status)})</option>`).join('') || '<option value="">No VMs</option>';
+    const abSel = document.getElementById('abVm');
+    if (abSel) abSel.innerHTML = vmsCache.map(v => `<option value="${v.vm_id}">${esc(v.vm_name)}</option>`).join('') || '<option value="">No VMs</option>';
+    const abBtn = document.getElementById('abCreate'); if (abBtn) abBtn.onclick = createAutoSchedule;
+  } catch (e) {}
+}
+
+async function loadAll() { loadBackups(); loadSnaps(); }
+
+async function loadBackups() {
+  const box = document.getElementById('backupList');
+  try {
+    const res = await fetch('/api/backups');
+    if (!res.ok) { box.innerHTML = '<div class="pempty">Could not load backups</div>'; return; }
+    const rows = await res.json();
+    const ready = rows.filter(r => r.status === 'ready');
+    const totalBytes = ready.reduce((s, r) => s + (r.size_bytes || 0), 0);
+    document.getElementById('tileCount').textContent = rows.length;
+    document.getElementById('tileCountSub').textContent = ready.length + ' ready';
+    document.getElementById('tileSize').textContent = fmt.bytes(totalBytes);
+    document.getElementById('tileVerified').textContent = ready.filter(r => r.checksum).length;
+    if (!rows.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-backup"/></svg></div>
+        <div class="pe-title">No backups yet</div>
+        <div class="pe-sub">Pick a stopped VM above and click "Back up now", or create a nightly schedule in Task Automation. Every backup gets a SHA-256 checksum you can verify any time.</div></div>`;
+      return;
+    }
+    box.innerHTML = rows.map(b => `
+      <div class="bk-row">
+        <div class="bk-icon"><svg width="16" height="16"><use href="#i-backup"/></svg></div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13.5px; font-weight:650; color:var(--text-primary);">${esc(b.name || 'Backup #' + b.id)}</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:3px; display:flex; gap:10px; flex-wrap:wrap;">
+            <span><a href="/admin/vm/${b.vm_id}" style="color:var(--accent-primary); text-decoration:none;">${esc(b.vm_name || 'VM #' + b.vm_id)}</a></span>
+            <span>${b.size_bytes ? fmt.bytes(b.size_bytes) : '—'}</span>
+            <span>${b.node_name ? 'on node ' + esc(b.node_name) : 'panel-local'}</span>
+            <span>${fmt.rel(b.created_at)}</span>
+            <span>by ${esc(b.created_by_name || 'system')}</span>
+            ${b.checksum ? `<span style="color:#6ee7b7;">checksum recorded</span>` : ''}
+          </div>
+        </div>
+        <span class="pill ${esc(b.status)}">${esc(b.status)}</span>
+        <div style="display:flex; gap:6px;">
+          ${b.status === 'ready' ? `
+          <button class="mini-btn" onclick="verifyBackup(${b.id}, this)"><svg width="12" height="12"><use href="#i-shield"/></svg> Verify</button>
+          <button class="mini-btn" onclick="restoreBackup(${b.id})"><svg width="12" height="12"><use href="#i-restore"/></svg> Restore</button>
+          <button class="mini-btn" title="Restore into a fresh clone - original VM untouched" onclick="testRestore(${b.id})"><svg width="12" height="12"><use href="#i-flask"/></svg> Test restore</button>` : ''}
+          <button class="mini-btn danger" onclick="deleteBackup(${b.id})"><svg width="12" height="12"><use href="#i-trash"/></svg></button>
+        </div>
+      </div>`).join('');
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load backups</div>'; }
+}
+
+async function loadSnaps() {
+  const box = document.getElementById('snapList');
+  try {
+    if (!vmsCache.length) await loadVms();
+    const html = [];
+    let total = 0;
+    for (const vm of vmsCache) {
+      const res = await fetch('/api/vms/' + vm.vm_id + '/snapshots');
+      if (!res.ok) continue;
+      const snaps = await res.json();
+      total += snaps.length;
+      if (!snaps.length) continue;
+      html.push(`<div class="bk-row">
+        <div class="bk-icon" style="background:rgba(129,140,248,.1); border-color:rgba(129,140,248,.22); color:#a5b4fc;"><svg width="16" height="16"><use href="#i-camera"/></svg></div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13.5px; font-weight:650; color:var(--text-primary);">${esc(vm.vm_name)} <span style="font-weight:400; color:var(--text-muted);">· ${snaps.length} snapshot${snaps.length === 1 ? '' : 's'}</span></div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">${snaps.map(s => esc(s.snapshot_name) + ' (' + fmt.rel(s.created_at) + ')').join(' · ')}</div>
+        </div>
+        <a class="mini-btn" href="/admin/vm/${vm.vm_id}">Manage</a>
+      </div>`);
+    }
+    document.getElementById('tileSnaps').textContent = total;
+    box.innerHTML = html.join('') || `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-camera"/></svg></div>
+      <div class="pe-title">No snapshots yet</div>
+      <div class="pe-sub">Snapshots are lightweight point-in-time states stored inside the VM's qcow2 disk. Create them from any VM's detail page (VM must be stopped).</div></div>`;
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load snapshots</div>'; }
+}
+
+async function createBackup() {
+  const vmId = document.getElementById('newBackupVm').value;
+  if (!vmId) return VNM.toast('No VM selected', 'error');
+  const vm = vmsCache.find(v => v.vm_id === +vmId);
+  if (vm && vm.status === 'running' && !confirm(`${vm.vm_name} is running. Backups require the VM to be stopped - stop it first?`)) return;
+  const res = await fetch('/api/vms/' + vmId + '/backups', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'Manual ' + new Date().toISOString().slice(0, 16).replace('T', ' ') })
+  });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not queue backup', 'error');
+  VNM.toast('Backup queued — watch live progress in Task Automation', 'success');
+  setTimeout(loadBackups, 1500);
+}
+
+async function verifyBackup(id, btn) {
+    btn.disabled = true;
+  try {
+    const res = await fetch('/api/backups/' + id + '/verify', { method: 'POST' });
+    const d = await res.json();
+    res.ok ? VNM.toast('Integrity verified ✓ SHA-256 matches (' + fmt.bytes(d.size_bytes) + ')', 'success')
+           : VNM.toast(d.message || 'Verification failed', 'error');
+  } finally { btn.disabled = false; }
+}
+
+async function restoreBackup(id) {
+  if (!confirm('RESTORE replaces the VM\'s current disk with this backup.\nThe VM must be stopped. Continue?')) return;
+  const res = await fetch('/api/backups/' + id + '/restore', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm: true })
+  });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not queue restore', 'error');
+  VNM.toast('Restore queued — the backup is checksum-verified before anything is touched', 'success');
+  setTimeout(loadBackups, 1500);
+}
+
+async function testRestore(id) {
+  if (!confirm('Create a fresh clone VM from this backup to verify recoverability? The original VM is NOT touched.')) return;
+  const res = await fetch('/api/backups/' + id + '/restore-new', { method: 'POST' });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not queue test restore', 'error');
+  VNM.toast('Recovery test queued — a test VM will appear in All VMs', 'success');
+}
+
+async function deleteBackup(id) {
+  if (!confirm('Delete this backup file permanently?')) return;
+  const res = await fetch('/api/backups/' + id, { method: 'DELETE' });
+  if (res.ok) { VNM.toast('Backup deleted', 'success'); loadBackups(); }
+  else VNM.toast('Could not delete', 'error');
+}
+
+window.addEventListener('load', async () => {
+  await loadVms();
+  loadAll();
+  setInterval(loadBackups, 15000);
+});
+
+// ============ AUTO BACKUP (premium) ============
+function applyPremiumChrome() {
+  const veil = document.getElementById('autoBackupVeil');
+  const chip = document.getElementById('autoBackupChip');
+  const inner = document.getElementById('autoBackupInner');
+  const card = document.getElementById('autoBackupCard');
+  if (!veil || !card) return;
+  const on = window.VNM && VNM.premium && VNM.premium.isOn();
+  veil.style.display = on ? 'none' : 'flex';
+  if (inner) inner.style.display = on ? 'block' : 'none';
+  if (chip) chip.style.display = on ? 'none' : 'inline-flex';
+  card.style.borderColor = on ? 'rgba(52,211,153,.22)' : 'rgba(245,158,11,.25)';
+  if (on) loadAutoSchedules();
+}
+document.addEventListener('vnm:premium', applyPremiumChrome);
+
+document.getElementById('autoBackupUnlock').addEventListener('click', (e) => {
+  e.stopPropagation();
+  VNM.premium.ensure('auto_backup', () => applyPremiumChrome());
+});
+
+async function loadAutoSchedules() {
+  const box = document.getElementById('abList');
+  if (!box) return;
+  try {
+    const res = await fetch('/api/task-schedules');
+    if (!res.ok) { box.innerHTML = '<div class="pempty">Could not load schedules</div>'; return; }
+    const rows = (await res.json()).filter(s => s.task_type === 'vm.backup');
+    if (!rows.length) {
+      box.innerHTML = '<div class="pempty"><div class="pe-title" style="margin-bottom:4px;">No auto-backup schedules yet</div><div class="pe-sub">Pick a VM, choose a rhythm and retention above — VNM does the rest every night.</div></div>';
+      return;
+    }
+    box.innerHTML = rows.map(s => {
+      const vm = vmsCache.find(v => v.vm_id === s.target_id);
+      const ret = (s.params && s.params.retention) || 7;
+      return `<div class="bk-row">
+        <div class="bk-icon" style="background:rgba(245,158,11,.1); border-color:rgba(245,158,11,.22); color:#fcd34d;"><svg width="16" height="16"><use href="#i-camera"/></svg></div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13.5px; font-weight:650; color:var(--text-primary);">${esc(s.name)} <span class="pill ${s.enabled ? 'scheduled' : 'cancelled'}">${s.enabled ? 'active' : 'paused'}</span></div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:3px; display:flex; gap:10px; flex-wrap:wrap;">
+            <span>${vm ? esc(vm.vm_name) : 'VM #' + s.target_id}</span>
+            <span style="color:var(--accent-primary);">${esc(s.schedule_human)}</span>
+            <span>keep ${ret}</span>
+            <span>next: ${fmt.when ? fmt.when(s.next_run) : (s.next_run || '—')}</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="mini-btn" onclick="abRunNow(${s.id})">Run now</button>
+          <button class="mini-btn" onclick="abToggle(${s.id}, ${s.enabled ? 'false' : 'true'})">${s.enabled ? 'Pause' : 'Resume'}</button>
+          <button class="mini-btn danger" onclick="abDelete(${s.id})"><svg width="12" height="12"><use href="#i-trash"/></svg></button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load schedules</div>'; }
+}
+
+async function createAutoSchedule() {
+  const vmId = document.getElementById('abVm').value;
+  if (!vmId) return VNM.toast('Select a VM', 'error');
+  const spec = document.getElementById('abSpec').value;
+  const retention = parseInt(document.getElementById('abRetention').value, 10) || 7;
+  const vm = vmsCache.find(v => v.vm_id === +vmId);
+  const res = await fetch('/api/task-schedules', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'Auto backup · ' + (vm ? vm.vm_name : 'VM'), task_type: 'vm.backup', target_id: parseInt(vmId, 10), schedule: spec, params: { retention } })
+  });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not create schedule', 'error');
+  VNM.toast('Auto backup scheduled — ' + spec, 'success');
+  loadAutoSchedules();
+}
+
+async function abRunNow(id) {
+  const res = await fetch('/api/task-schedules/' + id + '/run', { method: 'POST' });
+  const d = await res.json();
+  res.ok ? VNM.toast('Backup triggered — watch Task Automation', 'success') : VNM.toast(d.message || 'Could not run', 'error');
+}
+async function abToggle(id, enabled) {
+  await fetch('/api/task-schedules/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: enabled === 'true' }) });
+  loadAutoSchedules();
+}
+async function abDelete(id) {
+  if (!confirm('Delete this auto-backup schedule?')) return;
+  await fetch('/api/task-schedules/' + id, { method: 'DELETE' });
+  loadAutoSchedules();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .mon-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .vm-mon-card { padding:16px 18px; border-radius:15px; border:1px solid var(--border-card, rgba(148,163,184,.16)); background:var(--glass-bg, rgba(15,20,35,.5)); }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/users/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="mon-page-icon"><svg width="19" height="19"><use href="#i-activity"/></svg></div>
+          <div>
+            <h1 class="page-title">My Monitoring</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Live CPU and memory graphs for your virtual machines — updated every 20 seconds</p>
+          </div>
+        </div>
+        <button class="mini-btn" onclick="loadAll()"><svg width="13" height="13"><use href="#i-refresh"/></svg> Refresh</button>
+      </div>
+
+      <div id="vmCharts" class="grid-2">
+        <div class="sk" style="height:230px;"></div>
+        <div class="sk" style="height:230px;"></div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+let myVms = [];
+
+async function loadAll() {
+  try {
+    const res = await fetch('/api/vms');
+    myVms = res.ok ? await res.json() : [];
+    renderCards();
+    drawCharts();
+  } catch (e) {
+    document.getElementById('vmCharts').innerHTML = '<div class="pempty" style="grid-column:1/-1;">Could not load your VMs</div>';
+  }
+}
+
+function renderCards() {
+  const grid = document.getElementById('vmCharts');
+  if (!myVms.length) {
+    grid.innerHTML = `<div class="pempty" style="grid-column:1/-1;"><div class="pe-icon"><svg width="22" height="22"><use href="#i-activity"/></svg></div>
+      <div class="pe-title">No VMs yet</div><div class="pe-sub">Create a VM from your dashboard to see live resource graphs here.</div></div>`;
+    return;
+  }
+  grid.innerHTML = myVms.map(vm => `
+    <div class="vm-mon-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px;">
+        <div>
+          <a href="/vm/${vm.vm_id}" style="font-size:14.5px; font-weight:750; color:var(--text-primary); text-decoration:none;">${esc(vm.vm_name)}</a>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${vm.cpus || '?'} vCPU · ${fmt.bytes((vm.memory || 0) * 1024 * 1024)}</div>
+        </div>
+        <span class="pill ${vm.status === 'running' ? 'running' : 'cancelled'}">${esc(vm.status)}</span>
+      </div>
+      <div class="chart-wrap" style="height:110px;"><canvas id="cpu-${vm.vm_id}"></canvas></div>
+      <div style="font-size:10.5px; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between;">
+        <span>CPU (last hour)</span><span id="cpunow-${vm.vm_id}">—</span>
+      </div>
+      <div class="chart-wrap" style="height:110px; margin-top:8px;"><canvas id="mem-${vm.vm_id}"></canvas></div>
+      <div style="font-size:10.5px; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between;">
+        <span>Memory (last hour)</span><span id="memnow-${vm.vm_id}">—</span>
+      </div>
+    </div>`).join('');
+}
+
+async function drawCharts() {
+  for (const vm of myVms) {
+    try {
+      const res = await fetch('/api/monitoring/history?scope=vm&id=' + vm.vm_id + '&hours=1');
+      if (!res.ok) continue;
+      const hist = await res.json();
+      const cpu = hist.map(s => s.cpu).filter(v => v != null);
+      const memPct = hist.map(s => (s.mem_used != null && s.mem_total) ? (s.mem_used / s.mem_total) * 100 : null);
+      const cpuCanvas = document.getElementById('cpu-' + vm.vm_id);
+      const memCanvas = document.getElementById('mem-' + vm.vm_id);
+      if (cpuCanvas) VNM.charts.area(cpuCanvas, [{ color: '#22d3ee', data: cpu }], { max: 100, unit: '%' });
+      if (memCanvas) VNM.charts.area(memCanvas, [{ color: '#818cf8', data: memPct }], { max: 100, unit: '%' });
+      const last = hist[hist.length - 1];
+      if (last) {
+        const cn = document.getElementById('cpunow-' + vm.vm_id);
+        const mn = document.getElementById('memnow-' + vm.vm_id);
+        if (cn) cn.textContent = last.cpu != null ? last.cpu.toFixed(1) + '%' : 'no samples';
+        if (mn) mn.textContent = (last.mem_used != null && last.mem_total) ? fmt.bytes(last.mem_used) : 'no samples';
+      }
+    } catch (e) {}
+  }
+}
+
+window.addEventListener('load', () => {
+  loadAll();
+  setInterval(loadAll, 20000);
+  window.addEventListener('resize', drawCharts);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .st-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .pool-card { padding:16px 18px; border-radius:15px; border:1px solid var(--border-card, rgba(148,163,184,.16)); background:var(--glass-bg, rgba(15,20,35,.5)); }
+    .pool-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:13px; }
+    .pool-name { font-size:14px; font-weight:750; color:var(--text-primary); display:flex; align-items:center; gap:9px; }
+    .pool-path { font-family:'Sarasa Mono SC', ui-monospace, monospace; font-size:10.5px; color:var(--text-muted); word-break:break-all; }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="st-page-icon"><svg width="19" height="19"><use href="#i-database"/></svg></div>
+          <div>
+            <h1 class="page-title">Storage Pools</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Disk usage for VM storage, backups and templates — across the panel and every node</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="mini-btn" onclick="loadPools()"><svg width="13" height="13"><use href="#i-refresh"/></svg> Refresh</button>
+          <button class="mini-btn primary" onclick="openPoolModal()"><svg width="12" height="12"><use href="#i-plus"/></svg> Register pool</button>
+        </div>
+      </div>
+
+      <div class="hint-note" style="margin-bottom:16px;">
+        <b>How pools work:</b> the three built-in pools (VM Storage, Backups, Templates) are managed automatically on each host.
+        Registering an extra pool only adds it to this dashboard — removing a pool <b>never deletes any files</b>.
+        VM disks are created in each node's VM Storage pool; backups land in the Backups pool of the node the VM lives on.
+      </div>
+
+      <div class="grid-2" id="poolGrid">
+        <div class="sk" style="height:150px;"></div>
+        <div class="sk" style="height:150px;"></div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+<!-- Register pool modal -->
+<div class="modal-overlay" id="poolModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="17" height="17"><use href="#i-database"/></svg> Register Storage Pool</div>
+      <button class="modal-close" onclick="closeModal('poolModal')"><svg width="15" height="15"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <label class="pform-label">Pool name</label>
+      <input class="pinput" id="poolName" placeholder="nvme-fast" style="margin-bottom:12px;">
+      <label class="pform-label">Node</label>
+      <select class="pselect" id="poolNode" style="margin-bottom:12px;"></select>
+      <label class="pform-label">Absolute path on that node</label>
+      <input class="pinput" id="poolPath" placeholder="/mnt/nvme/vms" style="margin-bottom:12px;">
+      <div class="hint-note">The path must already exist on the target node. Registering it only adds usage tracking here — no data is moved or modified.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('poolModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createPool()">Register</button>
+    </div>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+
+async function loadPools() {
+  const grid = document.getElementById('poolGrid');
+  try {
+    const res = await fetch('/api/storage/pools');
+    if (!res.ok) { grid.innerHTML = '<div class="pempty" style="grid-column:1/-1;">Could not load storage pools</div>'; return; }
+    const d = await res.json();
+    if (!d.pools.length) { grid.innerHTML = '<div class="pempty" style="grid-column:1/-1;">No pools discovered</div>'; return; }
+    grid.innerHTML = d.pools.map(p => {
+      const u = p.usage;
+      const pct = u && u.totalBytes ? (u.usedBytes / u.totalBytes) * 100 : null;
+      const free = u ? fmt.bytes(u.freeBytes) : null;
+      return `<div class="pool-card">
+        <div class="pool-head">
+          <div class="pool-name">
+            <svg width="16" height="16" style="color:#22d3ee;"><use href="#i-database"/></svg>
+            ${esc(p.name)}
+            ${p.builtin ? '<span class="pill info" style="font-size:9px;">built-in</span>' : '<span class="pill scheduled" style="font-size:9px;">custom</span>'}
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; color:var(--text-muted);">${esc(p.node ? p.node.name : '')}</span>
+            ${!p.builtin && p.id ? `<button class="mini-btn danger" title="Unregister (files are kept)" onclick="removePool(${p.id})"><svg width="11" height="11"><use href="#i-trash"/></svg></button>` : ''}
+          </div>
+        </div>
+        <div class="pool-path">${p.path ? esc(p.path) : '—'}</div>
+        ${u ? `
+          <div class="meter" style="margin-top:12px;">
+            <div class="meter-head"><span>Used</span><b>${pct.toFixed(1)}%</b></div>
+            <div class="meter-track"><div class="meter-fill ${pct > 90 ? 'crit' : pct > 75 ? 'warn' : ''}" style="width:${Math.min(pct, 100)}%"></div></div>
+            <div class="meter-note">${fmt.bytes(u.usedBytes)} used · ${free} free of ${fmt.bytes(u.totalBytes)}</div>
+          </div>` : `
+          <div class="meter-note" style="margin-top:12px; color:${p.offline ? '#fbbf24' : '#f87171'};">
+            ${p.offline ? 'Node offline — usage unknown until the agent reconnects' : (p.error ? 'Usage unavailable: ' + esc(p.error) : 'Usage unavailable on this platform')}
+          </div>`}
+      </div>`;
+    }).join('');
+  } catch (e) { grid.innerHTML = '<div class="pempty" style="grid-column:1/-1;">Could not load storage pools</div>'; }
+}
+
+async function openPoolModal() {
+  const sel = document.getElementById('poolNode');
+  sel.innerHTML = '<option value="">Loading nodes…</option>';
+  openModal('poolModal');
+  try {
+    const d = await (await fetch('/api/nodes')).json();
+    sel.innerHTML = (d.nodes || []).map(n => `<option value="${n.id}">${esc(n.name)} (${n.mode}${n.status === 'online' || n.mode === 'local' ? '' : ' — offline'})</option>`).join('');
+  } catch (e) { sel.innerHTML = '<option value="">Failed to load</option>'; }
+}
+
+async function createPool() {
+  const body = {
+    name: document.getElementById('poolName').value.trim(),
+    node_id: parseInt(document.getElementById('poolNode').value, 10),
+    path: document.getElementById('poolPath').value.trim(),
+  };
+  const res = await fetch('/api/storage/pools', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not register pool', 'error');
+  closeModal('poolModal');
+  VNM.toast('Pool registered', 'success');
+  loadPools();
+}
+
+async function removePool(id) {
+  if (!confirm('Unregister this pool? No files will be deleted.')) return;
+  const res = await fetch('/api/storage/pools/' + id, { method: 'DELETE' });
+  if (res.ok) { VNM.toast('Pool unregistered (data kept)', 'success'); loadPools(); }
+  else VNM.toast('Could not remove', 'error');
+}
+
+window.addEventListener('load', loadPools);
+</script>
+</body>
+</html>

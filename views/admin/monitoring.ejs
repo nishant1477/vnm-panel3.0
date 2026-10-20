@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .mon-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .node-cap-card { padding:16px 18px; border-radius:15px; border:1px solid var(--border-card, rgba(148,163,184,.16)); background:var(--glass-bg, rgba(15,20,35,.5)); }
+    .node-cap-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:13px; gap:8px; }
+    .node-cap-name { font-size:14px; font-weight:750; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
+    .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+    .dot.on { background:#10b981; box-shadow:0 0 10px rgba(16,185,129,.7); }
+    .dot.off { background:#64748b; }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="mon-page-icon"><svg width="19" height="19"><use href="#i-activity"/></svg></div>
+          <div>
+            <h1 class="page-title">Monitoring &amp; Alerts</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Live fleet metrics, historical graphs, node capacity and alert rules — refreshed every 20 seconds</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="mini-btn" onclick="refreshAll()"><svg width="13" height="13"><use href="#i-refresh"/></svg> Refresh</button>
+        </div>
+      </div>
+
+      <!-- Fleet tiles -->
+      <div class="grid-4" style="margin-bottom:18px;">
+        <div class="ptile">
+          <div class="ptile-label">Virtual Machines</div>
+          <div class="ptile-value" id="tileVms">—</div>
+          <div class="ptile-sub" id="tileVmsSub">— running</div>
+          <div class="ptile-icon"><svg width="16" height="16"><use href="#i-server"/></svg></div>
+        </div>
+        <div class="ptile">
+          <div class="ptile-label">Nodes Online</div>
+          <div class="ptile-value" id="tileNodes">—</div>
+          <div class="ptile-sub" id="tileNodesSub">of — registered</div>
+          <div class="ptile-icon"><svg width="16" height="16"><use href="#i-activity"/></svg></div>
+        </div>
+        <div class="ptile">
+          <div class="ptile-label">Avg CPU</div>
+          <div class="ptile-value" id="tileCpu">—</div>
+          <div class="ptile-sub">across online nodes</div>
+          <div class="ptile-icon"><svg width="16" height="16"><use href="#i-activity"/></svg></div>
+        </div>
+        <div class="ptile">
+          <div class="ptile-label">Open Alerts</div>
+          <div class="ptile-value" id="tileAlerts" style="color:#fbbf24;">—</div>
+          <div class="ptile-sub" id="tileAlertsSub">acknowledged: —</div>
+          <div class="ptile-icon" style="background:rgba(245,158,11,.1); border-color:rgba(245,158,11,.2); color:#fbbf24;"><svg width="16" height="16"><use href="#i-alert"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Live charts -->
+      <div class="grid-2" style="margin-bottom:18px;">
+        <div class="card chart-card" style="padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Host CPU</div>
+            <div style="font-size:11px; color:var(--text-muted);">local node · last hour</div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartCpu"></canvas></div>
+          <div class="chart-legend">
+            <span class="lg"><i style="background:#22d3ee;"></i> CPU <b id="cpuNow">—</b></span>
+          </div>
+        </div>
+        <div class="card chart-card" style="padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Host Memory</div>
+            <div style="font-size:11px; color:var(--text-muted);">local node · last hour</div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartMem"></canvas></div>
+          <div class="chart-legend">
+            <span class="lg"><i style="background:#818cf8;"></i> Used <b id="memNow">—</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Node capacity -->
+      <div class="card" style="padding:18px; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Node Capacity</div>
+          <div style="font-size:11px; color:var(--text-muted);">live host usage + VM allocations</div>
+        </div>
+        <div class="grid-2" id="nodeCapacity"><div class="sk" style="height:120px;"></div><div class="sk" style="height:120px;"></div></div>
+      </div>
+
+      <!-- Alert feed + rules -->
+      <div class="grid-2">
+        <div class="card" style="padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Alert Feed</div>
+            <button class="mini-btn" onclick="loadAlertEvents()"><svg width="12" height="12"><use href="#i-refresh"/></svg> Refresh</button>
+          </div>
+          <div id="alertFeed" style="display:flex; flex-direction:column; gap:9px; max-height:420px; overflow-y:auto;">
+            <div class="sk" style="height:56px;"></div>
+          </div>
+        </div>
+        <div class="card" style="padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:9px;">
+              <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Alert Rules</div>
+              <span class="prem-feature-chip" id="rulesChip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Premium</span>
+            </div>
+            <button class="mini-btn primary" onclick="openRuleModal()"><svg width="12" height="12"><use href="#i-plus"/></svg> New Rule</button>
+          </div>
+          <div id="rulesList" style="display:flex; flex-direction:column; gap:9px;">
+            <div class="sk" style="height:56px;"></div>
+          </div>
+          <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-subtle, rgba(148,163,184,.14));">
+            <div style="font-size:12.5px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Notifications</div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <input class="pinput" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." style="flex:1; min-width:200px;">
+              <button class="mini-btn" onclick="saveWebhook()">Save</button>
+              <button class="mini-btn" onclick="testWebhook()">Test</button>
+            </div>
+            <div class="hint-note" style="margin-top:9px;">Alerts always appear in the in-panel feed. A Discord webhook delivers them to your channel in real time; email delivery would require an external SMTP relay, so webhooks are the supported channel.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+<!-- New rule modal -->
+<div class="modal-overlay" id="ruleModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="17" height="17"><use href="#i-alert"/></svg> New Alert Rule</div>
+      <button class="modal-close" onclick="closeModal('ruleModal')"><svg width="15" height="15"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <label class="pform-label">Rule name</label>
+      <input class="pinput" id="ruleName" placeholder="High CPU on all nodes" style="margin-bottom:12px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label class="pform-label">Scope</label>
+          <select class="pselect" id="ruleScope" onchange="loadRuleTargets()">
+            <option value="node">All nodes</option>
+            <option value="node-one">A specific node…</option>
+            <option value="vm">All VMs</option>
+            <option value="vm-one">A specific VM…</option>
+          </select>
+        </div>
+        <div id="ruleTargetWrap" style="display:none;">
+          <label class="pform-label">Target</label>
+          <select class="pselect" id="ruleTarget"></select>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label class="pform-label">Metric</label>
+          <select class="pselect" id="ruleMetric"><option value="cpu">CPU %</option><option value="mem">Memory %</option><option value="disk">Disk %</option></select>
+        </div>
+        <div>
+          <label class="pform-label">Condition</label>
+          <select class="pselect" id="ruleComp"><option value=">">above</option><option value="&lt;">below</option></select>
+        </div>
+        <div>
+          <label class="pform-label">Threshold %</label>
+          <input class="pinput" id="ruleThreshold" type="number" min="0" max="100" value="85">
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+        <div>
+          <label class="pform-label">Sustained (min)</label>
+          <input class="pinput" id="ruleFor" type="number" min="0" max="120" value="5">
+        </div>
+        <div>
+          <label class="pform-label">Severity</label>
+          <select class="pselect" id="ruleSeverity"><option value="info">Info</option><option value="warning" selected>Warning</option><option value="critical">Critical</option></select>
+        </div>
+        <div>
+          <label class="pform-label">Cooldown (min)</label>
+          <input class="pinput" id="ruleCooldown" type="number" min="1" max="1440" value="30">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ruleModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createRule()">Create Rule</button>
+    </div>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+
+function refreshAll() {
+  loadLive();
+  loadCapacity();
+  loadAlertEvents();
+  loadRules();
+  loadWebhook();
+}
+
+async function loadLive() {
+  try {
+    const res = await fetch('/api/monitoring/live');
+    if (!res.ok) return;
+    const d = await res.json();
+    document.getElementById('tileVms').textContent = d.overview.vms;
+    document.getElementById('tileVmsSub').textContent = d.overview.vmsRunning + ' running';
+    document.getElementById('tileNodes').textContent = d.overview.nodesOnline;
+    document.getElementById('tileNodesSub').textContent = 'of ' + d.overview.nodes + ' registered';
+    document.getElementById('tileCpu').textContent = d.overview.cpuPercent == null ? '—' : d.overview.cpuPercent + '%';
+  } catch (e) {}
+}
+
+async function drawHistory() {
+  // Local node CPU + memory for the last hour.
+  try {
+    const nodes = await (await fetch('/api/nodes')).json();
+    const local = (nodes.nodes || []).find(n => n.mode === 'local') || (nodes.nodes || [])[0];
+    if (!local) return;
+    const hist = await (await fetch('/api/monitoring/history?scope=node&id=' + local.id + '&hours=1')).json();
+    const cpu = hist.map(s => s.cpu).filter(v => v != null);
+    const memPct = hist.map(s => (s.mem_used != null && s.mem_total) ? (s.mem_used / s.mem_total) * 100 : null);
+    VNM.charts.area(document.getElementById('chartCpu'),
+      [{ name: 'CPU', color: '#22d3ee', data: cpu }], { max: 100, unit: '%' });
+    VNM.charts.area(document.getElementById('chartMem'),
+      [{ name: 'Memory', color: '#818cf8', data: memPct }], { max: 100, unit: '%' });
+    const last = hist[hist.length - 1];
+    if (last) {
+      document.getElementById('cpuNow').textContent = last.cpu != null ? last.cpu.toFixed(1) + '%' : '—';
+      document.getElementById('memNow').textContent = (last.mem_used != null && last.mem_total)
+        ? fmt.bytes(last.mem_used) + ' / ' + fmt.bytes(last.mem_total) : '—';
+    }
+  } catch (e) {}
+}
+
+async function loadCapacity() {
+  const box = document.getElementById('nodeCapacity');
+  try {
+    const res = await fetch('/api/nodes/capacity');
+    if (!res.ok) { box.innerHTML = '<div class="pempty" style="grid-column:1/-1;">Could not load node capacity</div>'; return; }
+    const d = await res.json();
+    if (!(d.nodes || []).length) { box.innerHTML = '<div class="pempty" style="grid-column:1/-1;">No nodes registered</div>'; return; }
+    box.innerHTML = d.nodes.map(n => {
+      const cpu = n.host.cpuUsagePercent, memPct = n.host.ramTotalBytes ? (n.host.ramUsedBytes / n.host.ramTotalBytes) * 100 : null;
+      const diskPct = n.host.diskTotalBytes ? (n.host.diskUsedBytes / n.host.diskTotalBytes) * 100 : null;
+      const meter = (label, pct, sub) => `
+        <div class="meter">
+          <div class="meter-head"><span>${label}</span><b>${pct == null ? '—' : pct.toFixed(0) + '%'}</b></div>
+          <div class="meter-track"><div class="meter-fill ${pct > 90 ? 'crit' : pct > 75 ? 'warn' : ''}" style="width:${pct == null ? 0 : Math.min(pct, 100)}%"></div></div>
+          ${sub ? `<div class="meter-note">${sub}</div>` : ''}
+        </div>`;
+      return `<div class="node-cap-card">
+        <div class="node-cap-head">
+          <div class="node-cap-name"><span class="dot ${n.online ? 'on' : 'off'}"></span>${esc(n.name)}</div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            ${n.maintenance_mode ? '<span class="pill maintenance">Maintenance</span>' : ''}
+            <span class="pill ${n.online ? 'succeeded' : 'cancelled'}">${n.online ? 'Online' : 'Offline'}</span>
+          </div>
+        </div>
+        ${meter('CPU', cpu, n.host.cpuModel ? esc(String(n.host.cpuModel).slice(0, 44)) + ' · ' + (n.host.cpuCores || '?') + ' cores' : (n.allocated.cpus + ' vCPUs allocated'))}
+        ${meter('Memory', memPct, fmt.bytes(n.host.ramUsedBytes) + ' / ' + fmt.bytes(n.host.ramTotalBytes) + ' · ' + (n.allocated.memoryMb / 1024).toFixed(1) + ' GB allocated to VMs')}
+        ${meter('Disk', diskPct, fmt.bytes(n.host.diskUsedBytes) + ' / ' + fmt.bytes(n.host.diskTotalBytes) + (n.host.kvmAvailable ? ' · KVM ready' : ' · software virtualization'))}
+      </div>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = '<div class="pempty" style="grid-column:1/-1;">Could not load node capacity</div>';
+  }
+}
+
+async function loadAlertEvents() {
+  const box = document.getElementById('alertFeed');
+  try {
+    const res = await fetch('/api/alert-events');
+    const evts = await res.json();
+    let open = 0, ack = 0;
+    evts.forEach(e => e.status === 'open' ? open++ : ack++);
+    document.getElementById('tileAlerts').textContent = open;
+    document.getElementById('tileAlertsSub').textContent = 'acknowledged: ' + ack;
+    if (!evts.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-check"/></svg></div>
+        <div class="pe-title">All clear</div><div class="pe-sub">No alerts have fired. Rules evaluate against live metrics every 20 seconds.</div></div>`;
+      return;
+    }
+    box.innerHTML = evts.map(e => `
+      <div class="alert-event ${esc(e.severity)}">
+        <div class="sev-icon"><svg width="15" height="15"><use href="#i-alert"/></svg></div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:12.5px; font-weight:650; color:var(--text-primary);">${esc(e.message)}</div>
+          <div style="font-size:10.5px; color:var(--text-muted); margin-top:3px; display:flex; gap:8px; align-items:center;">
+            <span class="pill ${esc(e.status)}">${esc(e.status)}</span>
+            <span>${esc(e.rule_name || 'task')}</span>
+            <span>· ${fmt.rel(e.created_at)}</span>
+          </div>
+        </div>
+        ${e.status === 'open' ? `<button class="mini-btn" onclick="ackEvent(${e.id})">Ack</button>` : ''}
+      </div>`).join('');
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load alerts</div>'; }
+}
+
+async function ackEvent(id) {
+  await fetch('/api/alert-events/' + id + '/ack', { method: 'POST' });
+  loadAlertEvents();
+}
+
+async function loadRules() {
+  const box = document.getElementById('rulesList');
+  try {
+    const res = await fetch('/api/alert-rules');
+    const rules = await res.json();
+    if (!rules.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-bell"/></svg></div>
+        <div class="pe-title">No alert rules yet</div><div class="pe-sub">Create a rule like "CPU above 85% for 5 minutes on all nodes" and get notified in-panel and via Discord.</div></div>`;
+      return;
+    }
+    box.innerHTML = rules.map(r => `
+      <div class="rule-row">
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13px; font-weight:650; color:var(--text-primary);">${esc(r.name)}</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+            ${esc(r.metric)} ${esc(r.comparator)} ${r.threshold}% for ${r.for_minutes}m · ${esc(r.scope)}${r.target_name ? ' "' + esc(r.target_name) + '"' : ' (all)'} · last fired ${fmt.rel(r.last_fired_at)}
+          </div>
+        </div>
+        <span class="pill ${esc(r.severity)}">${esc(r.severity)}</span>
+        <label class="switch"><input type="checkbox" ${r.enabled ? 'checked' : ''} onchange="toggleRule(${r.id}, this.checked)"><span class="sl"></span></label>
+        <button class="mini-btn danger" onclick="deleteRule(${r.id})"><svg width="12" height="12"><use href="#i-trash"/></svg></button>
+      </div>`).join('');
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load rules</div>'; }
+}
+
+function openRuleModal() {
+  if (!(VNM.premium && VNM.premium.ensure('alert_rules'))) return;
+  openModal('ruleModal');
+}
+async function loadRuleTargets() {
+  const scope = document.getElementById('ruleScope').value;
+  const wrap = document.getElementById('ruleTargetWrap');
+  const sel = document.getElementById('ruleTarget');
+  if (scope === 'node' || scope === 'vm') { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  sel.innerHTML = '<option value="">Loading…</option>';
+  try {
+    if (scope === 'node-one') {
+      const d = await (await fetch('/api/nodes')).json();
+      sel.innerHTML = (d.nodes || []).map(n => `<option value="${n.id}">${esc(n.name)}</option>`).join('');
+    } else {
+      const vms = await (await fetch('/api/admin/vms')).json();
+      sel.innerHTML = vms.map(v => `<option value="${v.vm_id}">${esc(v.vm_name)}</option>`).join('');
+    }
+  } catch (e) { sel.innerHTML = '<option value="">Failed to load</option>'; }
+}
+
+async function createRule() {
+  const scopeSel = document.getElementById('ruleScope').value;
+  const scope = scopeSel.startsWith('node') ? 'node' : 'vm';
+  const targetId = (scopeSel.endsWith('-one')) ? document.getElementById('ruleTarget').value : null;
+  const body = {
+    name: document.getElementById('ruleName').value.trim(),
+    scope, target_id: targetId || undefined,
+    metric: document.getElementById('ruleMetric').value,
+    comparator: document.getElementById('ruleComp').value,
+    threshold: parseFloat(document.getElementById('ruleThreshold').value),
+    for_minutes: parseInt(document.getElementById('ruleFor').value),
+    severity: document.getElementById('ruleSeverity').value,
+    cooldown_minutes: parseInt(document.getElementById('ruleCooldown').value),
+  };
+  if (!body.name) return VNM.toast('Rule name is required', 'error');
+  const res = await fetch('/api/alert-rules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not create rule', 'error');
+  closeModal('ruleModal');
+  VNM.toast('Alert rule created', 'success');
+  loadRules();
+}
+
+async function toggleRule(id, enabled) {
+  await fetch('/api/alert-rules/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled }) });
+}
+async function deleteRule(id) {
+  if (!confirm('Delete this alert rule?')) return;
+  await fetch('/api/alert-rules/' + id, { method: 'DELETE' });
+  loadRules();
+}
+
+async function loadWebhook() {
+  try {
+    const d = await (await fetch('/api/alerts/settings')).json();
+    document.getElementById('webhookUrl').value = d.discord_webhook_configured ? '' : '';
+    document.getElementById('webhookUrl').placeholder = d.discord_webhook_configured
+      ? 'Configured (' + d.discord_webhook_preview + ') — paste a new URL to replace'
+      : 'https://discord.com/api/webhooks/...';
+  } catch (e) {}
+}
+async function saveWebhook() {
+  const url = document.getElementById('webhookUrl').value.trim();
+  const res = await fetch('/api/alerts/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ discord_webhook: url }) });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not save', 'error');
+  VNM.toast(url ? 'Discord webhook saved' : 'Webhook cleared', 'success');
+  document.getElementById('webhookUrl').value = '';
+  loadWebhook();
+}
+async function testWebhook() {
+  const res = await fetch('/api/alerts/test', { method: 'POST' });
+  const d = await res.json();
+  res.ok ? VNM.toast('Test notification sent — check Discord', 'success') : VNM.toast(d.message || 'Test failed', 'error');
+}
+
+window.addEventListener('load', () => {
+  refreshAll();
+  drawHistory();
+  setInterval(loadLive, 20000);
+  setInterval(drawHistory, 60000);
+  setInterval(loadAlertEvents, 30000);
+  window.addEventListener('resize', drawHistory);
+});
+
+// ============ Premium chrome for this page ============
+function monitoringPremiumChrome() {
+  const chip = document.getElementById('rulesChip');
+  if (!chip) return;
+  chip.style.display = (VNM.premium && VNM.premium.isOn()) ? 'none' : 'inline-flex';
+}
+document.addEventListener('vnm:premium', monitoringPremiumChrome);
+</script>
+</body>
+</html>

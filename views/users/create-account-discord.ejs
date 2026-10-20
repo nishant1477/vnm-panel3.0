@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'Create Account - VNM Panel' %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <style>
+    html, body { height: auto; min-height: 100vh; }
+    .signup-card { max-width: 440px; }
+    .discord-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border-radius: 8px; font-size: 13px;
+      background: rgba(88, 101, 242, 0.12); color: #aab2ff;
+      border: 1px solid rgba(88, 101, 242, 0.3);
+    }
+    .shake { animation: shake 0.4s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-bg"></div>
+<div class="login-bg-grid"></div>
+
+<div class="login-page">
+  <div class="login-container signup-card">
+
+    <div class="login-card" id="signupCard">
+      <div class="login-card-header">
+        <div>
+          <div class="login-title">Create your account</div>
+          <div class="login-subtitle">One last step to finish signing in with Discord</div>
+        </div>
+        <div class="login-logo-inside">
+          <img src="<%= siteLogo %>" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;" alt="Logo">
+        </div>
+      </div>
+
+      <div id="signupAlert" style="display:none; margin-bottom: 16px;"></div>
+
+      <div style="margin-bottom: 20px; text-align: center;">
+        <span class="discord-tag">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.317 4.3632a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.0366c-.211.3648-.444.8384-.607 1.2144a18.27 18.27 0 00-5.487 0c-.163-.3776-.385-.8496-.607-1.2144a.077.077 0 00-.079-.0365c-1.751.289-3.436.906-4.884 1.515a.07.07 0 00-.032.0277C1.533 8.93.013 12.3928 1.191 15.7839a.076.076 0 00.029.0335c2.409 1.796 4.776 2.894 7.102 3.622a.077.077 0 00.084-.0276c.462-.6392.873-1.3135 1.226-2.0137a.073.073 0 00-.041-.1008c-.663-.2565-1.289-.5666-1.88-.9235a.075.075 0 01-.008-.1242c.126-.0947.252-.1938.372-.2923a.072.072 0 01.075-.0102c3.928 1.7898 8.183 1.7898 12.061 0a.073.073 0 01.075.009c.12.099.246.1991.373.2924a.075.075 0 01-.006.1242c-.59.3569-1.216.6674-1.88.9235a.073.073 0 00-.041.1008c.353.6994.764 1.3745 1.226 2.0137a.076.076 0 00.084.0276c2.327-.7285 4.694-1.8386 7.102-3.6221a.077.077 0 00.03-.0334c1.278-3.4668-.213-6.9301-1.798-9.7839a.070.070 0 00-.031-.0277zM8.02 13.2823c-.842 0-1.54-.7734-1.54-1.7244c0-.951.686-1.7244 1.54-1.7244c.856 0 1.551.7734 1.54 1.7244c0 .951-.686 1.7244-1.54 1.7244zm7.973 0c-.842 0-1.54-.7734-1.54-1.7244c0-.951.686-1.7244 1.54-1.7244c.856 0 1.551.7734 1.54 1.7244c0 .951-.684 1.7244-1.54 1.7244z"/>
+          </svg>
+          <%= discordUsername %>
+        </span>
+      </div>
+
+      <form id="signupForm" onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input type="text" id="username" class="form-control"
+                 placeholder="Choose a username" autocomplete="username"
+                 minlength="3" maxlength="32" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" class="form-control"
+                 value="<%= discordEmail %>" placeholder="you@example.com"
+                 autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-control"
+                 placeholder="At least 8 characters" autocomplete="new-password"
+                 minlength="8" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password2">Confirm password</label>
+          <input type="password" id="password2" class="form-control"
+                 placeholder="Repeat your password" autocomplete="new-password"
+                 minlength="8" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 btn-lg" id="signupBtn">
+          Create account
+        </button>
+      </form>
+
+      <div class="login-footer" style="text-align: center;">
+        <%= siteName %> · Your Discord account will be linked automatically.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showAlert(message, type) {
+  const alert = document.getElementById('signupAlert');
+  const icons = { error: '!', success: '+', info: 'i' };
+  alert.className = 'alert alert-' + type;
+  alert.innerHTML = '<span class="alert-icon">' + (icons[type] || 'i') + '</span><span>' + message + '</span>';
+  alert.style.display = 'flex';
+}
+
+async function handleSignup(e) {
+  e.preventDefault();
+  const btn = document.getElementById('signupBtn');
+  const card = document.getElementById('signupCard');
+
+  const username = document.getElementById('username').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const password2 = document.getElementById('password2').value;
+
+  if (password !== password2) {
+    showAlert('The two passwords do not match', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+  try {
+    const csrfToken = (document.cookie.match(/(?:^|; )csrf_token=([^;]*)/) || [])[1] || '';
+    const res = await fetch('/api/create-account-discord', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ username, email, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      btn.textContent = 'Account created! Redirecting...';
+      setTimeout(() => { window.location.href = '/dashboard'; }, 600);
+    } else {
+      throw new Error(data.error || 'Sign-up failed');
+    }
+  } catch (err) {
+    showAlert(err.message, 'error');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 400);
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+  }
+}
+</script>
+
+  <script src="/js/vnm-motion.js" defer></script>
+</body>
+</html>

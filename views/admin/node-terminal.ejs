@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <style>
+    .term-wrap { display:flex; flex-direction:column; height:calc(100vh - 190px); min-height:420px; background:#05050a; border:1px solid var(--border-card); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-card); }
+    .term-head { display:flex; align-items:center; gap:10px; padding:10px 16px; background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border-subtle); flex-shrink:0; }
+    .term-dot { width:11px; height:11px; border-radius:50%; }
+    .term-title { font-family:'SF Mono', Menlo, Consolas, monospace; font-size:12px; color:var(--text-secondary); }
+    .term-body { flex:1; overflow-y:auto; padding:16px 18px; font-family:'SF Mono', Menlo, Consolas, monospace; font-size:12.5px; line-height:1.65; white-space:pre-wrap; word-break:break-word; color:#c9d4e8; }
+    .term-body .cmd-echo { color:#7DD3FC; }
+    .term-body .meta { color:#5a6a99; }
+    .term-body .err { color:#f87171; }
+    .term-body .ok { color:#34d399; }
+    .term-input-row { display:flex; align-items:center; gap:10px; padding:12px 16px; border-top:1px solid var(--border-subtle); background:rgba(255,255,255,0.02); flex-shrink:0; }
+    .term-prompt { font-family:'SF Mono', Menlo, Consolas, monospace; font-size:13px; color:#34d399; font-weight:700; flex-shrink:0; }
+    .term-input { flex:1; background:transparent; border:none; outline:none; color:#e8eefc; font-family:'SF Mono', Menlo, Consolas, monospace; font-size:13px; caret-color:#22d3ee; }
+    .term-input::placeholder { color:#3b4a7a; }
+    .quick-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .quick-chip { font-family:'SF Mono', Menlo, Consolas, monospace; font-size:11px; padding:5px 11px; border-radius:16px; background:rgba(34,211,238,0.07); border:1px solid rgba(34,211,238,0.22); color:#7DD3FC; cursor:pointer; transition:all .15s ease; }
+    .quick-chip:hover { background:rgba(34,211,238,0.16); border-color:rgba(34,211,238,0.5); }
+    .term-note { font-size:11.5px; color:var(--text-muted); margin-top:12px; }
+    .nodes-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .status-pill { font-size:10px; text-transform:uppercase; letter-spacing:0.8px; font-weight:700; padding:3px 10px; border-radius:20px; }
+    .status-pill.online { background:rgba(16,185,129,0.14); color:#10B981; border:1px solid rgba(16,185,129,0.35); }
+    .status-pill.offline { background:rgba(239,68,68,0.12); color:#EF4444; border:1px solid rgba(239,68,68,0.3); }
+    @keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} }
+    .running-cursor { display:inline-block; width:8px; height:14px; background:#22d3ee; vertical-align:-2px; animation:blink-cursor 1s steps(1) infinite; }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="nodes-page-icon"><svg width="19" height="19"><use href="#i-terminal"/></svg></div>
+          <div>
+            <h1 class="page-title">Node Terminal</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+              Shell on <b style="color:var(--text-primary);"><%= node.name %></b>
+              <span class="node-mode-badge <%= node.mode %>" style="margin-left:6px;"><%= node.mode %></span>
+              <span class="status-pill <%= node.online ? 'online' : 'offline' %>" style="margin-left:6px;"><%= node.online ? 'online' : 'offline' %></span>
+            </p>
+          </div>
+        </div>
+        <div class="page-actions">
+          <a href="/admin/nodes" class="btn btn-ghost btn-sm"><svg width="13" height="13"><use href="#i-server"/></svg> All nodes</a>
+          <button class="btn btn-outline btn-sm" onclick="clearTerm()"><svg width="13" height="13"><use href="#i-trash"/></svg> Clear</button>
+        </div>
+      </div>
+
+      <div class="term-wrap">
+        <div class="term-head">
+          <span class="term-dot" style="background:#EF4444;"></span>
+          <span class="term-dot" style="background:#F59E0B;"></span>
+          <span class="term-dot" style="background:#10B981;"></span>
+          <span class="term-title">vnm@<%= node.name.toLowerCase().replace(/[^a-z0-9.-]+/g, '-') %> — admin shell</span>
+          <span style="flex:1"></span>
+          <span class="term-title" id="lastExit"></span>
+        </div>
+        <div class="term-body" id="termBody"><span class="meta"># VNM Node Terminal — every command is audit-logged. Max 60s per command, 256KB output.</span>
+<span class="meta"># Connected to node '<%= node.name %>' (<%= node.mode %>). Type a command and press Enter.</span></div>
+        <div class="term-input-row">
+          <span class="term-prompt">$</span>
+          <input class="term-input" id="termInput" placeholder="type a command… (↑/↓ history, Ctrl+L clear)" autocomplete="off" spellcheck="false" autofocus>
+        </div>
+      </div>
+
+      <div class="quick-row" id="quickRow"></div>
+      <p class="term-note">Commands run through the node agent with a hard timeout — long-running commands (top, journalctl -f) will be cut off when it expires. Prefer <b>tail -n 100</b> over <b>-f</b>.</p>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/admin/footer') %>
+
+<script>
+(function () {
+  const NODE_ID = <%= node.id %>;
+  const NODE_MODE = '<%= node.mode %>';
+  const body = document.getElementById('termBody');
+  const input = document.getElementById('termInput');
+  const exitBadge = document.getElementById('lastExit');
+  const history = [];
+  let histIdx = -1;
+  let busy = false;
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function scroll() { body.scrollTop = body.scrollHeight; }
+  function print(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    body.appendChild(div);
+    // keep the DOM sane on huge outputs
+    while (body.children.length > 800) body.removeChild(body.firstChild);
+    scroll();
+  }
+
+  async function run(command) {
+    if (busy) { print('<span class="meta"># busy - wait for the current command to finish</span>'); return; }
+    if (!command.trim()) return;
+    history.push(command);
+    histIdx = history.length;
+    busy = true;
+    print('<span class="cmd-echo">$ ' + esc(command) + '</span>');
+    const cursor = document.createElement('span');
+    cursor.className = 'running-cursor';
+    body.appendChild(cursor);
+    scroll();
+    const t0 = Date.now();
+    try {
+      const res = await fetch('/api/nodes/' + NODE_ID + '/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command, timeoutMs: 60000 })
+      });
+      const data = await res.json();
+      cursor.remove();
+      const ms = Date.now() - t0;
+      if (!res.ok) {
+        print('<span class="err">' + esc(data.error || 'Command failed') + '</span>');
+        exitBadge.textContent = 'error';
+        exitBadge.style.color = '#f87171';
+      } else {
+        if (data.stdout) print(esc(data.stdout).replace(/\n$/, ''));
+        if (data.stderr) print('<span class="err">' + esc(data.stderr).replace(/\n$/, '') + '</span>');
+        if (!data.stdout && !data.stderr) print('<span class="meta">(no output)</span>');
+        const label = data.timedOut ? 'TIMEOUT after ' + ms + 'ms' : 'exit ' + data.code + ' · ' + ms + 'ms';
+        print('<span class="meta">— ' + label + '</span>');
+        exitBadge.textContent = label;
+        exitBadge.style.color = (data.code === 0 && !data.timedOut) ? '#34d399' : '#f87171';
+      }
+    } catch (e) {
+      cursor.remove();
+      print('<span class="err">Network error: ' + esc(e.message) + '</span>');
+    } finally {
+      busy = false;
+      input.focus();
+      scroll();
+    }
+  }
+
+  window.runQuick = function (cmd) { run(cmd); };
+  window.clearTerm = function () {
+    body.innerHTML = '<span class="meta"># cleared</span>';
+    exitBadge.textContent = '';
+  };
+
+  // Quick commands — mode-aware, built here so no EJS lands inside attributes.
+  const QUICK = [
+    ['uptime', 'uptime'],
+    ['df -h', 'df -h'],
+    ['free -m', 'free -m'],
+    ['versions', 'node -v && qemu-system-x86_64 --version | head -1'],
+    ['recent VM files', NODE_MODE === 'local'
+      ? 'ls -lt /root/vms 2>/dev/null || ls -lt vms | head -15'
+      : 'ls -lt $HOME/vms 2>/dev/null | head -15'],
+    ['agent logs', NODE_MODE === 'local'
+      ? 'journalctl -u vnm-agent -n 30 --no-pager 2>/dev/null || tail -30 /opt/vnm-agent/agent.log'
+      : 'journalctl -u vnm-agent -n 30 --no-pager 2>/dev/null || tail -30 /opt/vnm-agent/agent.log'],
+    ['agent status', 'vnmagentctl status 2>/dev/null || systemctl status vnm-agent --no-pager 2>/dev/null | head -12'],
+    ['panel health', NODE_MODE === 'local'
+      ? 'vnmctl status 2>/dev/null || systemctl status vnm-panel --no-pager 2>/dev/null | head -12'
+      : 'echo (panel runs elsewhere - this is a worker node)'],
+  ];
+  const quickRow = document.getElementById('quickRow');
+  QUICK.forEach(([label, cmd]) => {
+    const chip = document.createElement('span');
+    chip.className = 'quick-chip';
+    chip.textContent = label;
+    chip.onclick = () => run(cmd);
+    quickRow.appendChild(chip);
+  });
+
+  input.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') {
+      const v = input.value;
+      input.value = '';
+      run(v);
+    } else if (ev.key === 'ArrowUp') {
+      ev.preventDefault();
+      if (histIdx > 0) { histIdx--; input.value = history[histIdx] || ''; }
+    } else if (ev.key === 'ArrowDown') {
+      ev.preventDefault();
+      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx] || ''; }
+      else { histIdx = history.length; input.value = ''; }
+    } else if (ev.key === 'l' && ev.ctrlKey) {
+      ev.preventDefault();
+      clearTerm();
+    } else if (ev.key === 'c' && ev.ctrlKey) {
+      // local-only: just clear the line (server side has its own timeout)
+      input.value = '';
+    }
+  });
+
+  input.focus();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#05070d">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <link rel="stylesheet" href="/css/vnm-shield.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="sh-i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="sh-i-shield-check" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="sh-i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></symbol>
+    <symbol id="sh-i-heart" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="sh-i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="sh-i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="sh-i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="sh-i-server" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="2" y="14" width="20" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6" y1="6" x2="6.01" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="18" x2="6.01" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="sh-i-dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="7 10 12 15 17 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="sh-i-up" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="17 8 12 3 7 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="sh-i-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9" y="9" width="6" height="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="sh-i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="sh-i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<%- include('../partials/admin/sidebar') %>
+
+<div class="admin-main">
+  <%- include('../partials/admin/header') %>
+
+  <div class="shield-page" id="shieldRoot" data-owner="<%= isOwner ? '1' : '0' %>" data-user="<%= user.username %>">
+
+    <!-- ================= header ================= -->
+    <div class="shield-head">
+      <div class="shield-head-title">
+        <div class="sh-ring ok" id="postureRing">
+          <svg viewBox="0 0 58 58">
+            <circle class="track" cx="29" cy="29" r="25" fill="none" stroke-width="4"/>
+            <circle class="val" cx="29" cy="29" r="25" fill="none" stroke-width="4" id="postureArc" stroke-dasharray="157" stroke-dashoffset="157"/>
+          </svg>
+          <div class="core"><svg><use href="#sh-i-shield-check"/></svg></div>
+        </div>
+        <div>
+          <h1>VNM Shield</h1>
+          <div class="sub" id="postureText">Loading security posture…</div>
+        </div>
+      </div>
+      <div class="shield-head-actions">
+        <button class="sh-btn primary" id="btnDiagnostics"><svg width="15" height="15"><use href="#sh-i-heart"/></svg> Run Full Diagnostics</button>
+        <button class="sh-btn" id="btnRefresh"><svg width="15" height="15"><use href="#sh-i-up" style="transform:rotate(180deg)"/></svg> Refresh</button>
+        <% if (isOwner) { %>
+        <button class="sh-btn danger" id="btnEmergency"><svg width="15" height="15"><use href="#sh-i-alert"/></svg> Emergency</button>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- ================= threat banner ================= -->
+    <div class="sh-threat" id="threatBanner">
+      <div class="icon"><svg width="20" height="20"><use href="#sh-i-alert"/></svg></div>
+      <div>
+        <div class="t" id="threatTitle">EMERGENCY SHIELD MODE ACTIVE</div>
+        <div class="d" id="threatDesc">Risky administrative operations are blocked. All sessions were revoked at activation.</div>
+      </div>
+      <div class="btns" id="threatBtns"></div>
+    </div>
+
+    <!-- ================= tabs ================= -->
+    <div class="sh-tabs" id="shTabs">
+      <button class="sh-tab active" data-tab="overview"><svg width="14" height="14"><use href="#sh-i-eye"/></svg> Overview</button>
+      <button class="sh-tab" data-tab="integrity"><svg width="14" height="14"><use href="#sh-i-shield"/></svg> Integrity <span class="cnt zero" id="cntIntegrity" style="display:none">0</span></button>
+      <button class="sh-tab" data-tab="incidents"><svg width="14" height="14"><use href="#sh-i-alert"/></svg> Incidents <span class="cnt zero" id="cntIncidents" style="display:none">0</span></button>
+      <button class="sh-tab" data-tab="security"><svg width="14" height="14"><use href="#sh-i-lock"/></svg> Security</button>
+      <button class="sh-tab" data-tab="recovery"><svg width="14" height="14"><use href="#sh-i-wrench"/></svg> Recovery</button>
+      <button class="sh-tab" data-tab="backups"><svg width="14" height="14"><use href="#sh-i-db"/></svg> Backups</button>
+      <button class="sh-tab" data-tab="resources"><svg width="14" height="14"><use href="#sh-i-cpu"/></svg> Resources</button>
+      <button class="sh-tab" data-tab="vms"><svg width="14" height="14"><use href="#sh-i-server"/></svg> VM Guardian</button>
+      <button class="sh-tab" data-tab="updates"><svg width="14" height="14"><use href="#sh-i-up"/></svg> Updates</button>
+      <% if (isOwner) { %><button class="sh-tab" data-tab="settings"><svg width="14" height="14"><use href="#sh-i-wrench"/></svg> Settings</button><% } %>
+    </div>
+
+    <!-- ================= OVERVIEW ================= -->
+    <div class="sh-tabpane" id="tab-overview">
+      <div class="sh-grid cols-4" id="ovStats">
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl"><svg width="13" height="13"><use href="#sh-i-shield"/></svg> File Integrity</div><div class="val" id="ovIntegrity">—</div><div class="foot" id="ovIntegrityFoot">—</div></div></div>
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl"><svg width="13" height="13"><use href="#sh-i-heart"/></svg> Panel Health</div><div class="val" id="ovHealth">—</div><div class="foot" id="ovHealthFoot">—</div></div></div>
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl"><svg width="13" height="13"><use href="#sh-i-alert"/></svg> Open Incidents</div><div class="val" id="ovIncidents">—</div><div class="foot" id="ovIncidentsFoot">—</div></div></div>
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl"><svg width="13" height="13"><use href="#sh-i-db"/></svg> Backup Vault</div><div class="val" id="ovBackup">—</div><div class="foot" id="ovBackupFoot">—</div></div></div>
+      </div>
+
+      <div class="sh-grid cols-2" style="margin-top:16px">
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic red"><svg width="16" height="16"><use href="#sh-i-alert"/></svg></div><h3>Current Incidents</h3><div class="right"><a class="sh-link" href="#" data-goto="incidents" style="font-size:12px">view all</a></div></div>
+          <div class="sh-card-body tight"><div class="sh-list" id="ovIncidentList"><div class="sh-empty">loading…</div></div></div>
+        </div>
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-heart"/></svg></div><h3>Dependency Health</h3><div class="right"><span class="sh-badge info" id="ovWatchdog">…</span></div></div>
+          <div class="sh-card-body" id="ovHealthBox"><div class="sh-skeleton"></div></div>
+        </div>
+      </div>
+
+      <div class="sh-grid cols-2" style="margin-top:16px">
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic amber"><svg width="16" height="16"><use href="#sh-i-cpu"/></svg></div><h3>Resource Health</h3></div>
+          <div class="sh-card-body" id="ovResources"><div class="sh-skeleton"></div></div>
+        </div>
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic violet"><svg width="16" height="16"><use href="#sh-i-wrench"/></svg></div><h3>Recovery &amp; Repair History</h3></div>
+          <div class="sh-card-body tight"><div class="sh-list" id="ovRecovery"><div class="sh-empty">loading…</div></div></div>
+        </div>
+      </div>
+
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-lock"/></svg></div><h3>Security &amp; Audit</h3><div class="right"><a class="sh-link" href="/admin/audit" style="font-size:12px">full audit log</a></div></div>
+        <div class="sh-card-body">
+          <div class="sh-grid cols-3">
+            <div class="sh-stat"><div class="lbl">Recent failed logins</div><div class="val" id="ovFailedLogins">—</div><div class="foot">panel-level, last records</div></div>
+            <div class="sh-stat"><div class="lbl">Security events</div><div class="val" id="ovSecEvents">—</div><div class="foot">IDS detections</div></div>
+            <div class="sh-stat"><div class="lbl">Last security sweep</div><div class="val cyan" style="font-size:16px" id="ovSecSweep">—</div><div class="foot"><button class="sh-btn sm" id="btnSecSweep" style="margin-top:6px">Run security scan</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= INTEGRITY ================= -->
+    <div class="sh-tabpane" id="tab-integrity" style="display:none">
+      <div class="sh-grid cols-4">
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Mode</div><div class="val cyan" id="inMode" style="font-size:20px">—</div><div class="foot" id="inModeFoot"></div></div></div>
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Baselined files</div><div class="val" id="inFiles">—</div><div class="foot" id="inBaselineAt">—</div></div></div>
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Last scan</div><div class="val" id="inLastScan" style="font-size:16px">—</div><div class="foot" id="inLastResult">—</div></div></div>
+        <div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Maintenance</div><div class="val" id="inMaint" style="font-size:16px">—</div><div class="foot" id="inMaintFoot">pauses scheduled scans</div></div></div>
+      </div>
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head">
+          <div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-shield"/></svg></div><h3>Integrity Events</h3>
+          <div class="right">
+            <button class="sh-btn sm" id="btnScanNow">Scan now</button>
+            <% if (isOwner) { %>
+            <button class="sh-btn sm" id="btnMaintenance">Maintenance window</button>
+            <button class="sh-btn sm primary" id="btnRebaseline">Re-baseline</button>
+            <% } %>
+          </div>
+        </div>
+        <div class="sh-card-body tight"><div class="sh-list" id="inHistory"><div class="sh-empty">loading…</div></div></div>
+      </div>
+      <% if (isOwner) { %>
+      <div class="sh-note info" style="margin-top:14px">
+        <svg width="16" height="16" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-eye"/></svg>
+        <div><b>Protection modes:</b> <b>monitor</b> alerts on any change to baselined files (code, views, assets, installers, agent) without touching them. <b>enforce</b> additionally auto-restores modified/deleted files from the trusted vault — the vault copy is re-verified against the baseline hash first, so a tampered vault never restores. After any legitimate update, press <b>Re-baseline</b>. Switch modes in <a href="#" class="sh-link" data-goto="settings">Settings</a>.</div>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- ================= INCIDENTS ================= -->
+    <div class="sh-tabpane" id="tab-incidents" style="display:none">
+      <div class="sh-card">
+        <div class="sh-card-head">
+          <div class="ic red"><svg width="16" height="16"><use href="#sh-i-alert"/></svg></div><h3>Incident Log</h3>
+          <div class="right">
+            <select class="sh-select" id="incFilterStatus" style="width:130px;padding:6px 10px;font-size:12px"><option value="">all statuses</option><option value="open" selected>open</option><option value="acknowledged">acknowledged</option><option value="resolved">resolved</option></select>
+            <select class="sh-select" id="incFilterSev" style="width:130px;padding:6px 10px;font-size:12px"><option value="">all severities</option><option value="critical">critical</option><option value="high">high</option><option value="medium">medium</option><option value="low">low</option></select>
+            <% if (isOwner) { %><button class="sh-btn sm" id="btnExportIncidents"><svg width="13" height="13"><use href="#sh-i-dl"/></svg> Export report</button><% } %>
+          </div>
+        </div>
+        <div class="sh-card-body tight"><div class="sh-list" id="incList"><div class="sh-empty">loading…</div></div></div>
+      </div>
+      <div class="sh-note info" style="margin-top:14px">
+        <svg width="16" height="16" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-eye"/></svg>
+        <div>Every incident carries a plain-language explanation with <b>confirmed causes</b> (provably implied by the error) separated from <b>possible causes</b> (things to check), plus a suggested fix. Repeating errors are grouped into one incident (occurrence counter) instead of spamming notifications. Secrets are redacted from every incident and every notification.</div>
+      </div>
+    </div>
+
+    <!-- ================= SECURITY ================= -->
+    <div class="sh-tabpane" id="tab-security" style="display:none">
+      <div class="sh-grid cols-2">
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic red"><svg width="16" height="16"><use href="#sh-i-lock"/></svg></div><h3>IDS Events</h3>
+            <div class="right"><button class="sh-btn sm primary" id="btnSecSweep2">Run all detectors</button></div></div>
+          <div class="sh-card-body tight"><div class="sh-list" id="secEvents"><div class="sh-empty">loading…</div></div></div>
+        </div>
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-eye"/></svg></div><h3>Login History</h3>
+            <div class="right"><label style="font-size:12px;color:var(--sh-text-dim);display:flex;gap:6px;align-items:center"><input type="checkbox" id="lhOnlyFails" checked> failures only</label></div></div>
+          <div class="sh-card-body tight"><div class="sh-list" id="secLogins"><div class="sh-empty">loading…</div></div></div>
+        </div>
+      </div>
+      <div class="sh-note warn" style="margin-top:14px">
+        <svg width="16" height="16" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg>
+        <div><b>Policy:</b> the IDS never takes destructive action on a single unverified event — no auto IP blocking, no account changes. Detectors: SSH brute-force, sshd/sudoers/firewall/systemd/cron configuration watchers, new listening ports, privileged account changes, new outbound-connection processes. Suggested responses appear inside each event.</div>
+      </div>
+    </div>
+
+    <!-- ================= RECOVERY ================= -->
+    <div class="sh-tabpane" id="tab-recovery" style="display:none">
+      <div class="sh-card">
+        <div class="sh-card-head"><div class="ic green"><svg width="16" height="16"><use href="#sh-i-heart"/></svg></div><h3>Health Checks</h3>
+          <div class="right"><button class="sh-btn sm" id="btnHealthNow">Re-run health checks</button></div></div>
+        <div class="sh-card-body" id="recHealth"><div class="sh-skeleton"></div></div>
+      </div>
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head"><div class="ic violet"><svg width="16" height="16"><use href="#sh-i-wrench"/></svg></div><h3>Recovery Center</h3>
+          <div class="right"><span class="sh-badge info" id="recBreakers">breakers: —</span></div></div>
+        <div class="sh-card-body">
+          <div class="sh-grid cols-2">
+            <div>
+              <div class="sh-kv"><span class="k">Restartable services (panel may restart)</span><span class="v mono">vnm-agent, vnm-watchdog</span></div>
+              <div class="sh-kv"><span class="k">Cooldown between attempts</span><span class="v" id="recCooldown">—</span></div>
+              <div class="sh-kv"><span class="k">Attempts per window (circuit breaker)</span><span class="v" id="recMaxAttempts">—</span></div>
+              <div class="sh-kv"><span class="k">VM policy</span><span class="v ok" style="color:var(--sh-ok)">NEVER restarted automatically</span></div>
+              <div class="sh-kv"><span class="k">Panel restarts</span><span class="v">external watchdog only</span></div>
+              <% if (isOwner) { %>
+              <div class="sh-flex" style="margin-top:12px;gap:8px">
+                <select class="sh-select" id="recTarget" style="width:180px"><option value="vnm-agent">vnm-agent</option><option value="vnm-watchdog">vnm-watchdog</option></select>
+                <button class="sh-btn sm" id="btnRestartSvc">Restart service</button>
+                <button class="sh-btn sm ghost" id="btnBreakerReset">Reset breaker</button>
+              </div>
+              <% } %>
+            </div>
+            <div>
+              <div class="sh-note info" style="margin-bottom:10px"><svg width="15" height="15" style="flex-shrink:0;margin-top:2px"><use href="#sh-i-eye"/></svg><div>Every recovery captures diagnostics (journal excerpts) <b>before</b> acting, verifies the service is genuinely healthy <b>after</b>, and records the outcome. The circuit breaker suspends retries after repeated failures and asks for manual intervention instead of thrashing the host.</div></div>
+              <div id="recBreakerBox"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head"><div class="ic amber"><svg width="16" height="16"><use href="#sh-i-server"/></svg></div><h3>Repair History</h3></div>
+        <div class="sh-card-body tight"><div class="sh-list" id="recHistory"><div class="sh-empty">loading…</div></div></div>
+      </div>
+    </div>
+
+    <!-- ================= BACKUPS ================= -->
+    <div class="sh-tabpane" id="tab-backups" style="display:none">
+      <div class="sh-grid cols-4" id="bkStats"></div>
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-db"/></svg></div><h3>Vault Contents</h3>
+          <div class="right">
+            <% if (isOwner) { %>
+            <button class="sh-btn sm primary" id="btnBackupNow">Backup now</button>
+            <button class="sh-btn sm" id="btnRestoreTest">Run restore test</button>
+            <% } %>
+          </div>
+        </div>
+        <div class="sh-card-body tight" style="overflow-x:auto"><table class="sh-table" id="bkTable"><thead><tr><th>File</th><th>Kind</th><th>Size</th><th>Verified</th><th>Remote</th><th>Age</th><th></th></tr></thead><tbody><tr><td colspan="7" style="text-align:center;color:var(--sh-text-faint)">loading…</td></tr></tbody></table></div>
+      </div>
+      <div class="sh-note warn" style="margin-top:14px">
+        <svg width="16" height="16" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-db"/></svg>
+        <div><b>What is backed up:</b> panel code, the SQLite database (consistent <span class="sh-tag">VACUUM INTO</span> snapshot), configuration — <b>encrypted</b> (AES-256-CBC, PBKDF2 200k) and versioned. <b>What is never touched:</b> VM disks — a panel-only restore can never overwrite customer VMs. Web panel down? Recover from the host: <span class="sh-tag">sudo scripts/vnmctl restore &lt;file&gt;</span></div>
+      </div>
+    </div>
+
+    <!-- ================= RESOURCES ================= -->
+    <div class="sh-tabpane" id="tab-resources" style="display:none">
+      <div class="sh-grid cols-2">
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-cpu"/></svg></div><h3>Disk &amp; Inodes</h3><div class="right"><button class="sh-btn sm" id="btnResRefresh">Refresh</button></div></div>
+          <div class="sh-card-body" id="resDisk"><div class="sh-skeleton"></div></div>
+        </div>
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic amber"><svg width="16" height="16"><use href="#sh-i-cpu"/></svg></div><h3>Memory &amp; Load &amp; Top Processes</h3></div>
+          <div class="sh-card-body" id="resMem"><div class="sh-skeleton"></div></div>
+        </div>
+      </div>
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head"><div class="ic green"><svg width="16" height="16"><use href="#sh-i-check"/></svg></div><h3>Safe Cleanup</h3>
+          <div class="right"><button class="sh-btn sm" id="btnCleanupScan">Find cleanup candidates</button></div></div>
+        <div class="sh-card-body" id="resCleanup"><div class="sh-empty">Scan to see safe cleanup candidates (logs, temp files, failed backups). VM disks, the live database, and the latest verified backup are never offered for deletion.</div></div>
+      </div>
+    </div>
+
+    <!-- ================= VM GUARDIAN ================= -->
+    <div class="sh-tabpane" id="tab-vms" style="display:none">
+      <div class="sh-card">
+        <div class="sh-card-head"><div class="ic violet"><svg width="16" height="16"><use href="#sh-i-server"/></svg></div><h3>VM Fleet Check</h3>
+          <div class="right"><button class="sh-btn sm primary" id="btnVmSweep">Sweep all VMs</button></div></div>
+        <div class="sh-card-body">
+          <div class="sh-kv"><span class="k">Last sweep</span><span class="v" id="vgLast">—</span></div>
+          <div class="sh-kv"><span class="k">VMs / running</span><span class="v" id="vgCounts">—</span></div>
+        </div>
+      </div>
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-eye"/></svg></div><h3>Per-VM Diagnostic</h3></div>
+        <div class="sh-card-body">
+          <div class="sh-flex" style="margin-bottom:10px"><input class="sh-input" id="vgVmId" type="number" placeholder="VM id (e.g. 1)" style="max-width:200px"><button class="sh-btn sm" id="btnVmDiag">Diagnose</button></div>
+          <div id="vgResult"></div>
+        </div>
+      </div>
+      <div class="sh-note info" style="margin-top:14px"><svg width="16" height="16" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-eye"/></svg><div>The guardian is <b>read-only</b>: it compares DB state with real QEMU processes, checks disk images, and reads serial logs — then suggests the safe recovery action. VM-level failures are clearly separated from panel-level ones, and repairs always go through the normal confirmed VM actions.</div></div>
+    </div>
+
+    <!-- ================= UPDATES ================= -->
+    <div class="sh-tabpane" id="tab-updates" style="display:none">
+      <div class="sh-grid cols-2">
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-up"/></svg></div><h3>Preflight Checks</h3><div class="right"><button class="sh-btn sm" id="btnPreflight">Run preflight</button></div></div>
+          <div class="sh-card-body" id="updPreflight"><div class="sh-empty">Preflight verifies Node version, disk headroom, write access, database reachability and QEMU presence before any update.</div></div>
+        </div>
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic green"><svg width="16" height="16"><use href="#sh-i-check"/></svg></div><h3>Apply Verified Release</h3></div>
+          <div class="sh-card-body">
+            <% if (isOwner) { %>
+            <div class="sh-field"><label>Release ZIP path on the server</label><input class="sh-input" id="updZip" placeholder="/tmp/vnm-panel-v3.1.0.zip"><div class="hint">Upload the release zip + its manifest json to the host (e.g. via SFTP), then reference the paths here.</div></div>
+            <div class="sh-field"><label>Manifest JSON path</label><input class="sh-input" id="updManifest" placeholder="/tmp/vnm-panel-v3.1.0.json"><div class="hint">Signed by the release key (ed25519). Unsigned releases are refused unless explicitly allowed in Settings.</div></div>
+            <div class="sh-flex" style="gap:8px">
+              <button class="sh-btn sm" id="btnUpdVerify">Verify only</button>
+              <button class="sh-btn sm primary" id="btnUpdApply">Verify + apply</button>
+              <button class="sh-btn sm danger" id="btnUpdRollback">Rollback last update</button>
+            </div>
+            <% } else { %><div class="sh-empty">Owner role required.</div><% } %>
+          </div>
+        </div>
+      </div>
+      <div class="sh-card" style="margin-top:16px">
+        <div class="sh-card-head"><div class="ic amber"><svg width="16" height="16"><use href="#sh-i-dl"/></svg></div><h3>Update &amp; Rollback History</h3></div>
+        <div class="sh-card-body tight"><div class="sh-list" id="updHistory"><div class="sh-empty">loading…</div></div></div>
+      </div>
+    </div>
+
+    <!-- ================= SETTINGS ================= -->
+    <% if (isOwner) { %>
+    <div class="sh-tabpane" id="tab-settings" style="display:none">
+      <div class="sh-grid cols-2">
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-shield"/></svg></div><h3>Protection &amp; Recovery Policy</h3></div>
+          <div class="sh-card-body" id="setGeneral"><div class="sh-skeleton"></div></div>
+        </div>
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic violet"><svg width="16" height="16"><use href="#sh-i-alert"/></svg></div><h3>Notification Channels</h3></div>
+          <div class="sh-card-body" id="setNotify"><div class="sh-skeleton"></div></div>
+        </div>
+      </div>
+      <div class="sh-grid cols-2" style="margin-top:16px">
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic cyan"><svg width="16" height="16"><use href="#sh-i-db"/></svg></div><h3>Backup Schedule</h3></div>
+          <div class="sh-card-body" id="setBackup"><div class="sh-skeleton"></div></div>
+        </div>
+        <div class="sh-card">
+          <div class="sh-card-head"><div class="ic amber"><svg width="16" height="16"><use href="#sh-i-up"/></svg></div><h3>Update Trust</h3></div>
+          <div class="sh-card-body" id="setUpdate"><div class="sh-skeleton"></div></div>
+        </div>
+      </div>
+      <div class="sh-flex" style="margin-top:16px;justify-content:flex-end"><button class="sh-btn primary" id="btnSaveSettings">Save all settings</button></div>
+    </div>
+    <% } %>
+
+  </div><!-- /shield-page -->
+</div>
+
+<!-- ============ confirm modal ============ -->
+<div class="sh-modal-wrap" id="shModal">
+  <div class="sh-modal">
+    <div class="sh-modal-head"><div class="ic red" id="shModalIcon"><svg width="16" height="16"><use href="#sh-i-alert"/></svg></div><h3 id="shModalTitle">Confirm</h3><button class="sh-btn sm ghost" style="margin-left:auto" onclick="shCloseModal()">✕</button></div>
+    <div class="sh-modal-body" id="shModalBody"></div>
+  </div>
+</div>
+
+<div class="sh-toast-wrap" id="shToasts"></div>
+
+<%- include('../partials/admin/footer') %>
+
+<script>
+// =====================================================================
+// VNM Shield dashboard logic (vanilla JS, no dependencies)
+// =====================================================================
+(function () {
+  'use strict';
+  const IS_OWNER = document.getElementById('shieldRoot').dataset.owner === '1';
+  const $ = (s, el) => (el || document).querySelector(s);
+  const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmtBytes = (b) => { if (b == null) return '—'; if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB'; return (b / 1073741824).toFixed(2) + ' GB'; };
+  const ago = (iso) => { if (!iso) return '—'; try { const s = Math.round((Date.now() - new Date(String(iso).replace(' ', 'T')).getTime()) / 1000); if (isNaN(s)) return esc(iso); if (s < 60) return s + 's ago'; if (s < 3600) return Math.round(s / 60) + 'm ago'; if (s < 86400) return Math.round(s / 3600) + 'h ago'; return Math.round(s / 86400) + 'd ago'; } catch (e) { return esc(iso); } };
+  const sevClass = (s) => ({ critical: 'critical', high: 'high', medium: 'medium', low: 'low', info: 'info' }[s] || 'info');
+
+  // ---------- API ----------
+  async function api(path, opts) {
+    const o = opts || {};
+    const init = { method: o.method || 'GET', headers: {} };
+    if (o.body !== undefined) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(o.body); }
+    const res = await fetch(path, init);
+    let data = {};
+    try { data = await res.json(); } catch (e) { data = { error: 'Bad response (' + res.status + ')' }; }
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    return data;
+  }
+  function toast(msg, kind) {
+    const t = document.createElement('div');
+    t.className = 'sh-toast ' + (kind || '');
+    t.innerHTML = '<svg width="15" height="15" style="flex-shrink:0;color:' + (kind === 'err' ? 'var(--sh-critical)' : 'var(--sh-ok)') + '"><use href="#sh-i-' + (kind === 'err' ? 'alert' : 'check') + '"/></svg><div>' + esc(msg) + '</div>';
+    $('#shToasts').appendChild(t);
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 350); }, 4200);
+  }
+  function busy(btn, on) { if (!btn) return; btn.classList.toggle('running', on !== false); btn.disabled = on !== false; }
+  async function guarded(btn, fn) { busy(btn, true); try { return await fn(); } catch (e) { toast(e.message, 'err'); return null; } finally { busy(btn, false); } }
+
+  // ---------- modal ----------
+  window.shCloseModal = () => $('#shModal').classList.remove('show');
+  function confirmModal(title, bodyHtml, okLabel, danger, onOk) {
+    $('#shModalTitle').textContent = title;
+    $('#shModalBody').innerHTML = bodyHtml +
+      '<div class="sh-flex" style="justify-content:flex-end;margin-top:18px"><button class="sh-btn" id="shModalCancel">Cancel</button>' +
+      '<button class="sh-btn ' + (danger ? 'danger' : 'primary') + '" id="shModalOk">' + esc(okLabel) + '</button></div>';
+    $('#shModal').classList.add('show');
+    $('#shModalCancel').onclick = shCloseModal;
+    $('#shModalOk').onclick = async () => { shCloseModal(); await onOk(); };
+  }
+  function emergencyOffModal() {
+    confirmModal('Lift Emergency Lockdown', '<div class="sh-field"><label>Recovery code</label><input class="sh-input" id="emCode" placeholder="from data/shield/emergency-recovery.txt (root-readable)"><div class="hint">Alternatively, on the host: <b>sudo scripts/vnmctl emergency off --code &lt;code&gt;</b></div></div>', 'Lift lockdown', true, async () => {
+      await guarded(null, () => api('/api/shield/emergency/off', { method: 'POST', body: { code: $('#emCode').value } }));
+      toast('Emergency mode lifted');
+      loadAll();
+    });
+  }
+
+  // ---------- tabs ----------
+  $$('.sh-tab').forEach((t) => t.addEventListener('click', () => {
+    $$('.sh-tab').forEach((x) => x.classList.remove('active'));
+    t.classList.add('active');
+    $$('.sh-tabpane').forEach((p) => (p.style.display = 'none'));
+    const pane = $('#tab-' + t.dataset.tab);
+    if (pane) pane.style.display = '';
+    loadTab(t.dataset.tab);
+  }));
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest('[data-goto]');
+    if (g) { e.preventDefault(); const tab = g.dataset.goto; const btn = $$('.sh-tab').find((t) => t.dataset.tab === tab); if (btn) btn.click(); }
+  });
+
+  // =====================================================================
+  // OVERVIEW
+  // =====================================================================
+  let lastOverview = null;
+  async function loadOverview() {
+    const d = await guarded(null, () => api('/api/shield/overview'));
+    if (!d) return;
+    lastOverview = d;
+    // posture
+    let score = 100; let cls = 'ok';
+    const openCrit = (d.incidents || []).filter((i) => i.severity === 'critical').length;
+    const openHigh = (d.incidents || []).filter((i) => i.severity === 'high').length;
+    if (d.integrity && d.integrity.lastResult && d.integrity.lastResult !== 'clean' && d.integrity.lastResult !== '—') { score -= 45; cls = 'crit'; }
+    if (d.emergency && d.emergency.active) { score -= 25; cls = 'crit'; }
+    if (openCrit) { score -= Math.min(40, openCrit * 20); cls = 'crit'; }
+    else if (openHigh) { score -= Math.min(20, openHigh * 8); if (cls === 'ok') cls = 'warn'; }
+    if (d.health && !d.health.overall) { score -= 20; if (cls === 'ok') cls = 'warn'; }
+    score = Math.max(5, score);
+    const ring = $('#postureRing');
+    ring.className = 'sh-ring ' + (cls === 'ok' ? 'ok' : cls === 'warn' ? 'warn' : 'crit');
+    ring.classList.remove('off');
+    $('#postureArc').style.strokeDashoffset = String(157 - (157 * score / 100));
+    $('#postureText').textContent = score >= 90 ? 'All systems protected — posture strong' : score >= 70 ? 'Protected — attention recommended' : score >= 40 ? 'Issues detected — review incidents' : 'CRITICAL — investigate now';
+
+    // threat banner
+    const tb = $('#threatBanner');
+    if (d.emergency && d.emergency.active) {
+      tb.classList.add('show');
+      $('#threatTitle').textContent = 'EMERGENCY SHIELD MODE ACTIVE';
+      $('#threatDesc').textContent = (d.emergency.reason || 'owner-activated') + ' — risky admin operations blocked; sessions revoked at activation.';
+      $('#threatBtns').innerHTML = IS_OWNER ? '<button class="sh-btn sm danger" id="tbOff">Lift lockdown</button>' : '';
+      const off = $('#tbOff'); if (off) off.onclick = emergencyOffModal;
+    } else if (openCrit) {
+      tb.classList.add('show');
+      $('#threatTitle').textContent = openCrit + ' CRITICAL incident' + (openCrit > 1 ? 's' : '') + ' open';
+      $('#threatDesc').textContent = (d.incidents || []).filter((i) => i.severity === 'critical')[0]?.title || '';
+      $('#threatBtns').innerHTML = '<button class="sh-btn sm" id="tbInc">Review</button>';
+      $('#tbInc').onclick = () => $$('.sh-tab').find((t) => t.dataset.tab === 'incidents').click();
+    } else { tb.classList.remove('show'); }
+
+    // stat tiles
+    const inOk = d.integrity && d.integrity.lastResult === 'clean';
+    const inEl = $('#ovIntegrity'); inEl.textContent = inOk ? 'Clean' : (d.integrity && d.integrity.lastResult) || '—';
+    inEl.className = 'val ' + (inOk ? 'ok' : 'crit');
+    $('#ovIntegrityFoot').textContent = (d.integrity && d.integrity.mode ? 'mode: ' + d.integrity.mode : '') + (d.integrity && d.integrity.baseline ? ' · ' + d.integrity.baseline.files + ' files' : '');
+    const hOk = d.health && d.health.overall;
+    const hEl = $('#ovHealth'); hEl.textContent = d.health ? (hOk ? 'Healthy' : 'Degraded') : '—';
+    hEl.className = 'val ' + (hOk ? 'ok' : 'warn');
+    $('#ovHealthFoot').textContent = d.health ? 'db ' + (d.health.database && d.health.database.ok ? 'ok' : 'ERROR') + ' · disk ' + (d.health.disk ? d.health.disk.level : '?') + (d.health.memory && d.health.memory.usedPct != null ? ' · mem ' + d.health.memory.usedPct + '%' : '') : '';
+    const inc = (d.incidents || []).length;
+    const incEl = $('#ovIncidents'); incEl.textContent = inc; incEl.className = 'val ' + (inc === 0 ? 'ok' : inc > 2 ? 'crit' : 'warn');
+    $('#ovIncidentsFoot').textContent = (d.securityEvents || []).length + ' recent security events';
+    const bk = d.backup || {};
+    const bkEl = $('#ovBackup');
+    const bkOk = bk.last && bk.last.verified;
+    bkEl.textContent = bk.last ? (bkOk ? 'Verified' : 'Unverified') : 'None';
+    bkEl.className = 'val ' + (bkOk ? 'ok' : bk.last ? 'warn' : 'crit');
+    $('#ovBackupFoot').textContent = bk.last ? ago(bk.last.at) + ' · ' + (bk.lastRestoreTest && bk.lastRestoreTest.ok ? 'restore test passed ' + ago(bk.lastRestoreTest.at) : 'restore test pending') : 'create your first backup';
+
+    // incident list
+    $('#ovIncidentList').innerHTML = (d.incidents || []).length ? d.incidents.map(incRow).join('') : '<div class="sh-empty"><svg><use href="#sh-i-check"/></svg><div>No open incidents. Nice.</div></div>';
+
+    // health box
+    const h = d.health || {};
+    $('#ovHealthBox').innerHTML = [
+      healthRow('Database', h.database ? (h.database.ok ? 'ok' : 'error') : '?', h.database && h.database.integrity ? 'quick_check: ' + h.database.integrity : ''),
+      healthRow('QEMU binary', h.qemu ? (h.qemu.ok ? 'ok' : 'missing') : '?', h.qemu ? h.qemu.qemu : ''),
+      healthRow('KVM acceleration', h.qemu ? (h.qemu.kvm === 'available' ? 'ok' : h.qemu.kvm) : '?', h.qemu && h.qemu.kvm !== 'available' ? 'TCG fallback works, slower' : ''),
+    ].concat((h.services && h.services.services ? h.services.services : []).map((s) => healthRow(s.service, s.state === 'active' ? 'ok' : s.state === 'not-found' ? 'info' : 'warn', s.state))).join('') +
+    '<div class="sh-kv"><span class="k">Watchdog (independent)</span><span class="v ' + (d.watchdog && d.watchdog.running ? '' : '') + '">' + (d.watchdog && d.watchdog.running ? '<span class="sh-badge ok"><span class="dot"></span>running · ' + esc(d.watchdog.state) + '</span>' : '<span class="sh-badge info">not installed</span>') + '</span></div>';
+
+    // resources box
+    const r = d.resources;
+    if (r && r.mounts) {
+      $('#ovResources').innerHTML = r.mounts.slice(0, 4).map((m) => meterRow(m.mount, m.usePct, m.used + '/' + m.size)).join('') +
+        (r.mem && r.mem.usedPct != null ? meterRow('memory', r.mem.usedPct, r.mem.usedPct + '%') : '') +
+        '<div class="sh-foot" style="font-size:12px;color:var(--sh-text-faint);margin-top:6px">load ' + (r.loadavg ? r.loadavg.map((x) => x.toFixed(2)).join(' ') : '—') + ' on ' + (r.cores || '?') + ' cores</div>';
+    } else { $('#ovResources').innerHTML = '<div class="sh-empty">unavailable</div>'; }
+
+    // recovery list
+    $('#ovRecovery').innerHTML = (d.recoveryHistory || []).length ? d.recoveryHistory.map(recRow).join('') : '<div class="sh-empty"><svg><use href="#sh-i-check"/></svg><div>No repairs were needed so far.</div></div>';
+
+    // security row
+    $('#ovFailedLogins').textContent = d.recentFailedLogins != null ? d.recentFailedLogins : '—';
+    $('#ovSecEvents').textContent = (d.securityEvents || []).length;
+    $('#ovSecSweep').textContent = '—';
+    if (d.securityEvents && d.securityEvents.length) $('#ovSecSweep').textContent = ago(d.securityEvents[0].created_at);
+
+    // badge counts
+    setBadge('#cntIncidents', inc);
+    return d;
+  }
+  function healthRow(name, state, note) {
+    const cls = state === 'ok' ? 'ok' : state === 'error' || state === 'missing' ? 'critical' : 'info';
+    return '<div class="sh-kv"><span class="k">' + esc(name) + '</span><span class="v"><span class="sh-badge ' + cls + '"><span class="dot"></span>' + esc(state) + '</span>' + (note ? ' <span style="color:var(--sh-text-faint);font-weight:400;font-size:11px">' + esc(note) + '</span>' : '') + '</span></div>';
+  }
+  function meterRow(name, pct, val) {
+    const cls = pct >= 90 ? 'crit' : pct >= 80 ? 'warn' : '';
+    return '<div class="sh-meter-row"><span class="nm" title="' + esc(name) + '">' + esc(name) + '</span><div class="bar sh-meter ' + cls + '"><i style="width:' + Math.min(100, pct) + '%"></i></div><span class="val">' + esc(val) + '</span></div>';
+  }
+  function setBadge(sel, n) {
+    const el = $(sel); if (!el) return;
+    el.style.display = n > 0 ? '' : 'none';
+    el.textContent = n;
+    el.classList.toggle('zero', n === 0);
+  }
+
+  // =====================================================================
+  // row renderers
+  // =====================================================================
+  function incRow(i) {
+    const causes = (i.confirmed_causes && Array.isArray(i.confirmed_causes) ? i.confirmed_causes : []).slice(0, 2).map((c) => '<div class="sh-cause confirmed"><span class="tag">confirmed</span><span>' + esc(c) + '</span></div>').join('') +
+      (i.possible_causes && Array.isArray(i.possible_causes) ? i.possible_causes.slice(0, 2).map((c) => '<div class="sh-cause possible"><span class="tag">possible</span><span>' + esc(c) + '</span></div>').join('') : '');
+    return '<div class="sh-item" data-id="' + i.id + '"><span class="sev ' + sevClass(i.severity) + '"></span><div class="body">' +
+      '<div class="l1"><span class="ttl">' + esc(i.title) + '</span><span class="sh-badge ' + sevClass(i.severity) + '">' + esc(i.severity) + '</span>' +
+      '<span class="sh-badge ' + (i.status === 'open' ? 'critical' : i.status === 'acknowledged' ? 'medium' : 'ok') + '">' + esc(i.status) + '</span>' +
+      (i.occurrences > 1 ? '<span class="sh-tag">×' + i.occurrences + '</span>' : '') + '</div>' +
+      '<div class="meta"><span class="sh-tag">' + esc(i.incident_id) + '</span><span>' + esc(i.component || '') + '</span><span>' + ago(i.last_seen || i.created_at) + '</span></div>' +
+      '<div class="desc">' + esc(i.explanation) + '</div>' +
+      (causes ? '<div class="sh-causes">' + causes + '</div>' : '') +
+      (i.suggested_fix ? '<div class="sh-fix"><b>Fix:</b> ' + esc(i.suggested_fix) + '</div>' : '') +
+      '</div><div class="ops">' +
+      (i.status === 'open' ? '<button class="sh-btn sm" onclick="shAckInc(' + i.id + ')">Ack</button>' : '') +
+      (i.status !== 'resolved' ? '<button class="sh-btn sm ghost" onclick="shResolveInc(' + i.id + ')">Resolve</button>' : '') +
+      '</div></div>';
+  }
+  window.shAckInc = async (id) => { await guarded(null, () => api('/api/shield/incidents/' + id + '/ack', { method: 'POST' })); toast('Incident acknowledged'); loadTab('incidents'); loadOverview(); };
+  window.shResolveInc = async (id) => { await guarded(null, () => api('/api/shield/incidents/' + id + '/resolve', { method: 'POST' })); toast('Incident resolved'); loadTab('incidents'); loadOverview(); };
+
+  function secEventRow(e) {
+    const d = e.detail ? (() => { try { return JSON.parse(e.detail); } catch (x) { return null; } })() : null;
+    return '<div class="sh-item"><span class="sev ' + sevClass(e.severity) + '"></span><div class="body">' +
+      '<div class="l1"><span class="ttl">' + esc(e.title) + '</span><span class="sh-badge ' + sevClass(e.severity) + '">' + esc(e.severity) + '</span><span class="sh-tag">' + esc(e.detector) + '</span></div>' +
+      '<div class="meta"><span>' + ago(e.created_at) + '</span></div>' +
+      (d && d.note ? '<div class="desc">' + esc(d.note) + '</div>' : '') +
+      (d && d.note2 ? '<div class="desc">' + esc(d.note2) + '</div>' : '') +
+      (d && (d.topIps || d.newPorts || d.changed) ? '<div class="sh-mono-block" style="margin-top:7px;max-height:110px">' + esc(JSON.stringify(d.topIps || d.newPorts || d.changed || d, null, 1)) + '</div>' : '') +
+      '</div></div>';
+  }
+  function recRow(r) {
+    const outcomeCls = r.outcome === 'success' ? 'ok' : r.outcome === 'blocked-by-breaker' ? 'medium' : 'critical';
+    return '<div class="sh-item"><span class="sev ' + outcomeCls + '"></span><div class="body">' +
+      '<div class="l1"><span class="ttl">' + esc(r.target) + ' — ' + esc(r.action) + '</span><span class="sh-badge ' + outcomeCls + '">' + esc(r.outcome) + '</span>' + (r.healthy_after ? '<span class="sh-badge ok">verified healthy</span>' : '') + '</div>' +
+      '<div class="meta"><span>' + ago(r.created_at) + '</span><span>' + esc(r.reason || '') + '</span>' + (r.duration_ms ? '<span>' + r.duration_ms + 'ms</span>' : '') + '<span class="sh-tag">' + esc(r.actor || 'panel') + '</span></div>' +
+      '</div><div class="ops">' + (IS_OWNER ? '<button class="sh-btn sm ghost" onclick="shRecDetail(' + r.id + ')">Diagnostics</button>' : '') + '</div></div>';
+  }
+  window.shRecDetail = async (id) => {
+    const d = await guarded(null, () => api('/api/shield/recovery/detail/' + id));
+    if (!d) return;
+    confirmModal('Diagnostics captured before repair', '<div class="sh-mono-block">' + esc(d.diagnostics || '(none captured)') + '</div><div class="sh-kv" style="margin-top:10px"><span class="k">Outcome</span><span class="v">' + esc(d.outcome) + '</span></div><div class="sh-kv"><span class="k">Duration</span><span class="v">' + (d.duration_ms || 0) + ' ms</span></div>', 'Close', false, async () => {});
+  };
+
+  // =====================================================================
+  // per-tab loaders
+  // =====================================================================
+  async function loadIntegrity() {
+    const d = await guarded(null, () => api('/api/shield/integrity'));
+    if (!d) return;
+    const s = d.status;
+    $('#inMode').textContent = s.mode;
+    $('#inModeFoot').textContent = s.mode === 'enforce' ? 'auto-restores verified files' : s.mode === 'monitor' ? 'alerts only' : 'engine idle';
+    $('#inFiles').textContent = s.baseline ? s.baseline.files : 0;
+    $('#inBaselineAt').textContent = s.baseline && s.baseline.at ? 'baselined ' + ago(s.baseline.at) : 'no baseline yet';
+    $('#inLastScan').textContent = s.lastScan ? ago(s.lastScan) : 'never';
+    const lr = $('#inLastResult'); lr.textContent = s.lastResult || '—';
+    lr.style.color = s.lastResult === 'clean' ? 'var(--sh-ok)' : 'var(--sh-medium)';
+    $('#inMaint').textContent = s.maintenance ? 'ACTIVE' : 'off';
+    const changes = (d.history || []).filter((e) => ['modified', 'added', 'removed', 'mode_changed', 'vault_mismatch', 'restored'].includes(e.event_type));
+    setBadge('#cntIntegrity', (s.lastResult && s.lastResult !== 'clean' && s.lastResult !== '—') ? changes.length : 0);
+    $('#inHistory').innerHTML = (d.history || []).length ? d.history.slice(0, 25).map((e) => {
+      const cls = ['modified', 'added', 'removed', 'vault_mismatch'].includes(e.event_type) ? 'critical' : e.event_type === 'restored' ? 'ok' : e.event_type === 'mode_changed' ? 'medium' : 'info';
+      return '<div class="sh-item"><span class="sev ' + cls + '"></span><div class="body">' +
+        '<div class="l1"><span class="ttl">' + esc(e.event_type.replace(/_/g, ' ')) + '</span><span class="sh-tag">' + esc(e.rel_path) + '</span></div>' +
+        '<div class="meta"><span>' + ago(e.created_at) + '</span><span class="sh-tag">' + esc(e.source || '') + '</span>' +
+        (e.old_sha256 && e.new_sha256 ? '<span class="sh-tag" title="old ' + esc(e.old_sha256) + ' → new ' + esc(e.new_sha256) + '">' + esc(e.old_sha256.slice(0, 8)) + ' → ' + esc(e.new_sha256.slice(0, 8)) + '</span>' : '') + '</div>' +
+        '</div>' + (IS_OWNER && ['modified', 'removed'].includes(e.event_type) ? '<div class="ops"><button class="sh-btn sm" onclick="shRestoreFile(\'' + esc(e.rel_path) + '\')">Restore</button></div>' : '') + '</div>';
+    }).join('') : '<div class="sh-empty">No integrity events recorded yet.</div>';
+  }
+  window.shRestoreFile = (p) => confirmModal('Restore file from trusted vault',
+    '<div class="sh-note warn"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg><div>Current <b>' + esc(p) + '</b> will be replaced with the baseline-verified copy from the vault. The vault copy is re-hashed against the baseline first — a tampered vault never restores.</div></div>',
+    'Restore', true, async () => {
+      const r = await guarded(null, () => api('/api/shield/integrity/restore', { method: 'POST', body: { confirm: true, paths: [p] } }));
+      if (r) { toast((r.results[0] && r.results[0].restored) ? 'File restored' : 'Restore failed: ' + (r.results[0] ? r.results[0].error : '?'), (r.results[0] && r.results[0].restored) ? '' : 'err'); loadIntegrity(); }
+    });
+
+  async function loadIncidents() {
+    const st = $('#incFilterStatus').value, sv = $('#incFilterSev').value;
+    const d = await guarded(null, () => api('/api/shield/incidents?limit=100' + (st ? '&status=' + st : '') + (sv ? '&severity=' + sv : '')));
+    if (!d) return;
+    $('#incList').innerHTML = (d.incidents || []).length ? d.incidents.map(incRow).join('') : '<div class="sh-empty"><svg><use href="#sh-i-check"/></svg><div>No incidents match this filter.</div></div>';
+    setBadge('#cntIncidents', (d.incidents || []).filter((i) => i.status === 'open').length);
+  }
+  $('#incFilterStatus').onchange = $('#incFilterSev').onchange = () => loadIncidents();
+  $('#btnExportIncidents') && ($('#btnExportIncidents').onclick = () => { window.open('/api/shield/incidents/export', '_blank'); });
+
+  async function loadSecurity() {
+    const [ev, lg] = await Promise.all([guarded(null, () => api('/api/shield/security/events?limit=50')), guarded(null, () => api('/api/shield/security/logins?limit=40' + ($('#lhOnlyFails').checked ? '&failures=1' : '')))]);
+    if (ev) $('#secEvents').innerHTML = ev.events.length ? ev.events.map(secEventRow).join('') : '<div class="sh-empty"><svg><use href="#sh-i-check"/></svg><div>No security events. Either all quiet or detectors not yet swept.</div></div>';
+    if (lg) $('#secLogins').innerHTML = lg.logins.length ? lg.logins.map((l) => '<div class="sh-item"><span class="sev ' + (l.success ? 'ok' : 'medium') + '"></span><div class="body"><div class="l1"><span class="ttl">' + esc(l.username || '(unknown)') + '</span>' + (l.success ? '<span class="sh-badge ok">success</span>' : '<span class="sh-badge medium">failed</span>') + '</div><div class="meta"><span>' + esc(l.reason || '') + '</span><span>' + esc(l.ip || '') + '</span><span>' + ago(l.created_at) + '</span></div></div></div>').join('') : '<div class="sh-empty">No login history yet.</div>';
+  }
+  $('#lhOnlyFails').onchange = () => loadSecurity();
+  const runSecSweep = (btn) => guarded(btn, async () => { const r = await api('/api/shield/security/sweep', { method: 'POST' }); toast('Security sweep done: ' + r.results.map((x) => x.detector + '=' + x.status).join(', ')); loadSecurity(); });
+  $('#btnSecSweep').onclick = (e) => runSecSweep(e.target.closest('button'));
+  $('#btnSecSweep2').onclick = (e) => runSecSweep(e.target.closest('button'));
+
+  async function loadRecovery() {
+    const [h, hist] = await Promise.all([guarded(null, () => api('/api/shield/recovery/health')), guarded(null, () => api('/api/shield/recovery/history?limit=30'))]);
+    if (h) {
+      $('#recHealth').innerHTML = healthRow('Overall', h.overall ? 'ok' : 'error', '') +
+        healthRow('Database', h.database ? (h.database.ok ? 'ok' : 'error') : '?', h.database && h.database.integrity !== 'skipped' ? 'quick_check: ' + h.database.integrity : '') +
+        healthRow('QEMU', h.qemu ? (h.qemu.ok ? 'ok' : 'missing') : '?', h.qemu ? (h.qemu.qemu || '') + ' · kvm: ' + h.qemu.kvm : '') +
+        healthRow('Disk', h.disk ? h.disk.level : '?', (h.disk && h.disk.mounts || []).map((m) => m.mount + ' ' + m.usePct).join(' · ')) +
+        healthRow('Memory', h.memory ? (h.memory.usedPct != null ? (h.memory.usedPct < 90 ? 'ok' : 'warn') : 'info') : '?', h.memory && h.memory.usedPct != null ? h.memory.usedPct + '% used' : '') +
+        ((h.services && h.services.services) || []).map((s) => healthRow(s.service, s.state === 'active' ? 'ok' : s.state === 'not-found' ? 'info' : 'warn', s.state)).join('');
+      const brks = h.breakers || {};
+      const keys = Object.keys(brks);
+      $('#recBreakers').textContent = keys.length ? keys.map((k) => k + (brks[k].open ? ' OPEN' : ' ok')).join(', ') : 'breakers: all closed';
+      $('#recBreakerBox').innerHTML = keys.length ? keys.map((k) => '<div class="sh-kv"><span class="k">' + esc(k) + '</span><span class="v"><span class="sh-badge ' + (brks[k].open ? 'critical' : 'ok') + '">' + (brks[k].open ? 'OPEN' : 'closed') + '</span> <span style="color:var(--sh-text-faint);font-size:11px">' + brks[k].attempts + ' attempts</span></span></div>').join('') : '<div class="sh-empty" style="padding:12px">No breaker ever tripped.</div>';
+    }
+    if (hist) $('#recHistory').innerHTML = hist.history.length ? hist.history.map(recRow).join('') : '<div class="sh-empty"><svg><use href="#sh-i-check"/></svg><div>No repairs recorded.</div></div>';
+    $('#recCooldown').textContent = 'configurable (default 5 min)';
+    $('#recMaxAttempts').textContent = 'default 3 per 30 min';
+  }
+  $('#btnHealthNow').onclick = (e) => guarded(e.target.closest('button'), () => loadRecovery());
+  $('#btnRestartSvc').onclick = (e) => {
+    const target = $('#recTarget').value;
+    confirmModal('Restart ' + target, '<div class="sh-note warn"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg><div>Diagnostics will be captured first, then <b>' + esc(target) + '</b> restarts, then its health is verified. The circuit breaker protects against loops.</div></div>', 'Restart', true, async () => {
+      const r = await guarded(null, () => api('/api/shield/recovery/restart', { method: 'POST', body: { target } }));
+      if (r) { toast(r.ok ? 'Restarted and verified healthy' : (r.blocked ? 'Blocked by cooldown/breaker' : 'Restart failed: ' + (r.error || r.outcome)), r.ok ? '' : 'err'); loadRecovery(); }
+    });
+  };
+  $('#btnBreakerReset').onclick = async (e) => {
+    const r = await guarded(e.target.closest('button'), () => api('/api/shield/recovery/breaker-reset', { method: 'POST', body: { target: $('#recTarget').value } }));
+    if (r) { toast('Breaker reset'); loadRecovery(); }
+  };
+
+  async function loadBackups() {
+    const d = await guarded(null, () => api('/api/shield/backup'));
+    if (!d) return;
+    const s = d.status;
+    $('#bkStats').innerHTML =
+      '<div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Schedule</div><div class="val cyan" style="font-size:18px">' + (s.scheduleHours ? 'every ' + s.scheduleHours + 'h' : 'off') + '</div><div class="foot">keep ' + s.keep + ' versions</div></div></div>' +
+      '<div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Last backup</div><div class="val" style="font-size:18px">' + (s.last ? ago(s.last.at) : 'never') + '</div><div class="foot">' + (s.last ? fmtBytes(s.last.size) + (s.last.verified ? ' · verified' : ' · unverified') : '') + '</div></div></div>' +
+      '<div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Restore test</div><div class="val ' + (s.lastRestoreTest ? (s.lastRestoreTest.ok ? 'ok' : 'crit') : '') + '" style="font-size:18px">' + (s.lastRestoreTest ? (s.lastRestoreTest.ok ? 'passed' : 'FAILED') : 'pending') + '</div><div class="foot">' + (s.lastRestoreTest ? ago(s.lastRestoreTest.at) : 'runs weekly') + '</div></div></div>' +
+      '<div class="sh-card"><div class="sh-card-body sh-stat"><div class="lbl">Remote copy</div><div class="val" style="font-size:18px">' + (s.remoteConfigured ? 'configured' : 'off') + '</div><div class="foot">passphrase ' + (s.passphraseSet ? 'set' : 'will be generated') + '</div></div></div>';
+    const tb = $('#bkTable tbody');
+    tb.innerHTML = (d.backups || []).length ? d.backups.map((b) => '<tr><td class="mono">' + esc(b.file) + '</td><td><span class="sh-tag">' + esc(b.kind) + '</span></td><td>' + fmtBytes(b.size) + '</td>' +
+      '<td>' + (b.size === 0 ? '—' : b.verified ? '<span class="sh-badge ok">verified</span>' : '<span class="sh-badge medium">unverified</span>') + '</td>' +
+      '<td>' + (b.remote_status ? esc(b.remote_status) : '—') + '</td><td>' + ago(b.created_at) + '</td>' +
+      '<td class="sh-flex" style="gap:5px;justify-content:flex-end">' + (IS_OWNER && b.size > 0 ? '<button class="sh-btn sm ghost" onclick="shBkVerify(\'' + esc(b.file) + '\')">Verify</button><button class="sh-btn sm danger" onclick="shBkRestore(\'' + esc(b.file) + '\')">Restore</button>' : '') + '</td></tr>').join('') :
+      '<tr><td colspan="7" style="text-align:center;color:var(--sh-text-faint);padding:24px">No backups yet — create the first one.</td></tr>';
+  }
+  window.shBkVerify = (f) => guarded(null, async () => { const r = await api('/api/shield/backup/verify', { method: 'POST', body: { file: f } }); toast(r.ok ? 'Backup verified end-to-end (' + r.filesChecked + ' files, db ' + r.dbCheck + ')' : 'Verification FAILED: ' + r.error, r.ok ? '' : 'err'); loadBackups(); });
+  window.shBkRestore = (f) => confirmModal('Restore from backup',
+    '<div class="sh-note danger"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg><div><b>' + esc(f) + '</b> will replace the panel code and database (VM disks are never touched). A safety backup of the current state is taken first. The panel service must be restarted afterwards.</div></div>' +
+    '<div class="sh-field" style="margin-top:10px"><label><input type="checkbox" id="bkSkipDb"> Keep the current database (restore code only)</label></div>',
+    'RESTORE', true, async () => {
+      const r = await guarded(null, () => api('/api/shield/backup/restore', { method: 'POST', body: { confirm: true, file: f, skipDb: $('#bkSkipDb').checked } }));
+      if (r) { toast(r.ok ? 'Restored — restart the panel service now' : 'Restore failed: ' + r.error, r.ok ? '' : 'err'); loadBackups(); }
+    });
+  $('#btnBackupNow').onclick = (e) => guarded(e.target.closest('button'), async () => { const r = await api('/api/shield/backup/create', { method: 'POST', body: {} }); toast(r.ok ? 'Backup created (' + r.files + ' files, ' + fmtBytes(r.size) + ')' : 'Backup failed: ' + r.error, r.ok ? '' : 'err'); loadBackups(); });
+  $('#btnRestoreTest').onclick = (e) => guarded(e.target.closest('button'), async () => { const r = await api('/api/shield/backup/restore-test', { method: 'POST' }); toast(r.ok ? 'Restore test passed — chain works end-to-end' : 'Restore test FAILED: ' + (r.error || ''), r.ok ? '' : 'err'); loadBackups(); });
+
+  async function loadResources() {
+    const d = await guarded(null, () => api('/api/shield/resources'));
+    if (!d) return;
+    $('#resDisk').innerHTML = (d.mounts || []).map((m) => meterRow(m.mount + ' (disk)', m.usePct, m.used + '/' + m.size)).join('') +
+      (d.inodes || []).map((m) => meterRow(m.mount + ' (inodes)', m.usePct, m.used)).join('');
+    $('#resMem').innerHTML =
+      (d.mem && d.mem.usedPct != null ? meterRow('memory', d.mem.usedPct, d.mem.usedPct + '%') : '') +
+      '<div style="font-size:12px;color:var(--sh-text-dim);margin:8px 0 4px">load avg: <b>' + (d.loadavg || []).map((x) => x.toFixed(2)).join(' ') + '</b> on ' + (d.cores || '?') + ' cores</div>' +
+      '<div style="font-size:12px;color:var(--sh-text-dim);margin:10px 0 4px">top processes (CPU)</div>' +
+      (d.top || []).map((p) => '<div class="sh-kv"><span class="k mono" style="max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.command) + '</span><span class="v mono">cpu ' + esc(p.cpu) + '% · mem ' + esc(p.mem) + '%</span></div>').join('');
+  }
+  $('#btnResRefresh').onclick = (e) => guarded(e.target.closest('button'), loadResources);
+  $('#btnCleanupScan').onclick = (e) => guarded(e.target.closest('button'), async () => {
+    const d = await api('/api/shield/cleanup/candidates');
+    window._cleanup = d.candidates;
+    $('#resCleanup').innerHTML = (d.candidates || []).length ? d.candidates.map((c, idx) =>
+      '<div class="sh-item"><span class="sev info"></span><div class="body"><div class="l1"><span class="ttl">' + esc(c.label) + '</span><span class="sh-tag">' + c.count + ' files · ' + fmtBytes(c.bytes) + '</span></div><div class="desc">' + esc(c.desc) + '</div>' +
+      (c.sample && c.sample.length ? '<div class="sh-mono-block" style="margin-top:6px;max-height:80px">' + c.sample.slice(0, 5).map((f) => esc(f.path) + ' (' + f.mb + ' MB)').join('\n') + '</div>' : '') + '</div>' +
+      (IS_OWNER && c.count ? '<div class="ops"><input type="checkbox" class="clean-cat" data-cat="' + esc(c.category) + '"></div>' : '') + '</div>').join('') +
+      (IS_OWNER ? '<div class="sh-flex" style="justify-content:flex-end;margin-top:12px"><button class="sh-btn sm danger" id="btnCleanupApply">Delete selected</button></div>' : '') : '<div class="sh-empty">Nothing to clean. 🎉</div>';
+    const ap = $('#btnCleanupApply');
+    if (ap) ap.onclick = () => {
+      const cats = $$('.clean-cat').filter((c) => c.checked).map((c) => c.dataset.cat);
+      if (!cats.length) return toast('Select at least one category', 'err');
+      confirmModal('Delete cleanup files', '<div class="sh-note warn"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg><div>Deleting: <b>' + cats.join(', ') + '</b>. VM disks, the database, and verified backups are excluded by design and cannot appear here.</div></div>', 'Delete', true, async () => {
+        const r = await guarded(null, () => api('/api/shield/cleanup/apply', { method: 'POST', body: { confirm: true, categories: cats } }));
+        if (r) { toast('Cleanup done'); loadResources(); $('#resCleanup').innerHTML = '<div class="sh-empty">Cleanup applied.</div>'; }
+      });
+    };
+  });
+
+  async function loadVms() {
+    const d = lastOverview || await loadOverview();
+    const sw = d && d.vmGuard;
+    $('#vgLast').textContent = sw ? ago(sw.at) : 'never';
+    $('#vgCounts').textContent = sw ? (sw.totalVms + ' total · ' + sw.running + ' running · ' + (sw.findings || []).length + ' findings') : '—';
+  }
+  $('#btnVmSweep').onclick = (e) => guarded(e.target.closest('button'), async () => { const r = await api('/api/shield/vmguard/sweep', { method: 'POST' }); lastOverview = null; await loadOverview(); await loadVms(); toast('VM sweep: ' + (r.findings || []).length + ' finding(s)'); if ((r.findings || []).length) { $('#vgResult').innerHTML = r.findings.map((f) => '<div class="sh-item"><span class="sev ' + sevClass(f.severity) + '"></span><div class="body"><div class="l1"><span class="ttl">' + esc(f.vm) + '</span><span class="sh-badge ' + sevClass(f.severity) + '">' + esc(f.code.replace(/_/g, ' ')) + '</span></div><div class="desc">' + esc(f.text) + '</div></div></div>').join(''); } });
+  $('#btnVmDiag').onclick = (e) => guarded(e.target.closest('button'), async () => {
+    const id = parseInt($('#vgVmId').value, 10);
+    if (!id) return toast('Enter a VM id', 'err');
+    const d = await api('/api/shield/vm/' + id);
+    $('#vgResult').innerHTML = '<div class="sh-item"><span class="sev ' + (d.findings && d.findings.length ? 'medium' : 'ok') + '"></span><div class="body">' +
+      '<div class="l1"><span class="ttl">VM #' + d.vm_id + ' — ' + esc(d.name) + '</span><span class="sh-badge ' + (d.actuallyRunning ? 'ok' : 'info') + '">' + (d.actuallyRunning ? 'QEMU alive' : 'not running') + '</span><span class="sh-badge info">db: ' + esc(d.dbStatus) + '</span></div>' +
+      (d.uptime ? '<div class="meta" style="margin-top:4px;font-size:12px;color:var(--sh-text-faint)"><span>uptime ' + esc(d.uptime) + '</span><span>rss ' + (d.rssMb || '?') + ' MB</span><span>cpu ' + esc(d.cpuPct || '?') + '%</span></div>' : '') +
+      (d.disk ? '<div class="meta" style="margin-top:4px;font-size:12px;color:var(--sh-text-faint)"><span>disk ' + d.disk.gb + ' GB (' + esc(d.disk.file) + ')</span></div>' : '') +
+      (d.findings || []).map((f) => '<div class="desc" style="margin-top:6px"><b>' + esc(f.code) + '</b> — ' + esc(f.text) + '</div>').join('') +
+      (d.logTail ? '<div class="sh-mono-block" style="margin-top:8px;max-height:140px">' + d.logTail.map(esc).join('\n') + '</div>' : '') +
+      '</div></div>';
+  });
+
+  async function loadUpdates() {
+    const d = await guarded(null, () => api('/api/shield/update/history'));
+    if (!d) return;
+    $('#updHistory').innerHTML = (d.history || []).length ? d.history.map((u) => {
+      const cls = u.outcome === 'success' ? 'ok' : u.outcome === 'refused' ? 'medium' : 'critical';
+      return '<div class="sh-item"><span class="sev ' + cls + '"></span><div class="body"><div class="l1"><span class="ttl">' + esc(u.from_version || '?') + ' → ' + esc(u.to_version || '?') + '</span><span class="sh-badge ' + cls + '">' + esc(u.outcome) + '</span>' + (u.rolled_back ? '<span class="sh-badge medium">rolled back</span>' : '') + '</div><div class="meta"><span>' + ago(u.created_at) + '</span><span>' + (u.files_changed || 0) + ' files</span></div>' + (u.detail ? '<div class="sh-mono-block" style="margin-top:6px;max-height:90px">' + esc(String(u.detail).slice(0, 600)) + '</div>' : '') + '</div></div>';
+    }).join('') : '<div class="sh-empty">No updates applied yet.</div>';
+  }
+  $('#btnPreflight').onclick = (e) => guarded(e.target.closest('button'), async () => {
+    const d = await api('/api/shield/update/preflight');
+    $('#updPreflight').innerHTML = d.checks.map((c) => healthRow(c.check, c.ok ? 'ok' : (c.warnOnly ? 'info' : 'error'), c.detail)).join('') + '<div class="sh-note ' + (d.ok ? 'info' : 'danger') + '" style="margin-top:10px"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-' + (d.ok ? 'check' : 'alert') + '"/></svg><div>' + (d.ok ? 'Preflight passed — the host is ready for an update.' : 'Preflight FAILED — fix the red items before updating.') + '</div></div>';
+  });
+  function updPaths() { return { zipPath: $('#updZip').value.trim(), manifestPath: $('#updManifest').value.trim() }; }
+  $('#btnUpdVerify').onclick = (e) => guarded(e.target.closest('button'), async () => {
+    const p = updPaths();
+    if (!p.zipPath || !p.manifestPath) return toast('Both paths required', 'err');
+    const r = await api('/api/shield/update/verify', { method: 'POST', body: p });
+    toast(r.ok ? 'Release verified (signature ok, ' + r.files + ' files hashed)' : 'Verification FAILED: ' + r.errors.join('; '), r.ok ? '' : 'err');
+  });
+  $('#btnUpdApply').onclick = (e) => confirmModal('Apply verified update', '<div class="sh-note warn"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg><div>The updater will: verify signature + every file hash, create a pre-update backup, snapshot changed files for rollback, apply, then syntax-validate the result and roll back automatically on failure. A service restart is required afterwards.</div></div>', 'Apply update', true, async () => {
+    const p = updPaths();
+    if (!p.zipPath || !p.manifestPath) return toast('Both paths required', 'err');
+    const r = await guarded(null, () => api('/api/shield/update/apply', { method: 'POST', body: { confirm: true, ...p } }));
+    if (r) { toast(r.ok ? 'Update applied (' + r.filesChanged + ' files) — restart the panel' : 'Update failed: ' + (r.error || r.errors || ''), r.ok ? '' : 'err'); loadUpdates(); }
+  });
+  $('#btnUpdRollback').onclick = (e) => confirmModal('Roll back last update', '<div class="sh-note warn"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg><div>Files changed by the last update are restored from the automatic rollback snapshot. A service restart is required afterwards.</div></div>', 'Roll back', true, async () => {
+    const r = await guarded(null, () => api('/api/shield/update/rollback', { method: 'POST', body: { confirm: true } }));
+    if (r) { toast(r.ok ? 'Rolled back (' + r.restored + ' files) — restart the panel' : 'Rollback failed: ' + (r.error || ''), r.ok ? '' : 'err'); loadUpdates(); }
+  });
+
+  // ---------- settings ----------
+  let settingDefs = [];
+  async function loadSettings() {
+    if (!IS_OWNER) return;
+    const d = await guarded(null, () => api('/api/shield/settings'));
+    if (!d) return;
+    settingDefs = d.settings;
+    const groups = {
+      general: ['shield.integrity.mode', 'shield.integrity.scheduleMinutes', 'shield.security.sshFailThreshold', 'shield.security.sshWindowMinutes', 'shield.recovery.maxAttempts', 'shield.recovery.cooldownMinutes'],
+      notify: ['shield.notify.minSeverity', 'shield.notify.discord.webhook', 'shield.notify.telegram.token', 'shield.notify.telegram.chatId', 'shield.notify.webhook.url', 'shield.notify.email.host', 'shield.notify.email.port', 'shield.notify.email.security', 'shield.notify.email.user', 'shield.notify.email.pass', 'shield.notify.email.from', 'shield.notify.email.to'],
+      backup: ['shield.backup.scheduleHours', 'shield.backup.keep', 'shield.backup.remote.target', 'shield.backup.remote.key'],
+      update: ['shield.update.publicKey', 'shield.update.allowUnsigned'],
+    };
+    const render = (ids) => ids.map((k) => {
+      const def = settingDefs.find((x) => x.key === k);
+      if (!def) return '';
+      const val = def.value == null ? def.def : def.value;
+      let input;
+      if (def.type === 'select') input = '<select class="sh-input sh-setting" data-key="' + def.key + '">' + def.options.map((o) => '<option value="' + esc(o) + '"' + (String(val) === String(o) ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+      else if (def.type === 'textarea') input = '<textarea class="sh-textarea sh-setting" data-key="' + def.key + '">' + esc(val) + '</textarea>';
+      else input = '<input class="sh-input sh-setting" data-key="' + def.key + '" type="' + (def.type === 'password' ? 'password' : 'text') + '" value="' + esc(val) + '" autocomplete="new-password">';
+      return '<div class="sh-field"><label>' + esc(def.label) + (def.isDefault ? ' <span class="sh-tag">default</span>' : '') + '</label>' + input + '</div>';
+    }).join('');
+    $('#setGeneral').innerHTML = render(groups.general);
+    $('#setNotify').innerHTML = render(groups.notify) + '<div class="sh-flex" style="gap:6px;flex-wrap:wrap;margin-top:4px"><span style="font-size:12px;color:var(--sh-text-dim)">test a channel:</span>' + ['discord', 'telegram', 'webhook', 'email'].map((c) => '<button class="sh-btn sm ghost" data-test="' + c + '">' + c + '</button>').join('') + '</div>';
+    $('#setBackup').innerHTML = render(groups.backup) + '<div class="sh-note info" style="margin-top:6px"><svg width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#sh-i-db"/></svg><div>Passphrase for new backups is generated automatically on first use and stored server-side; also keep a copy offline — without it, encrypted backups cannot be restored. Set <b>VNM_BACKUP_PASSPHRASE</b> to override.</div></div>';
+    $('#setUpdate').innerHTML = render(groups.update) + '<div class="sh-note warn" style="margin-top:6px"><svg width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#sh-i-alert"/></svg><div>Releases are verified against the built-in project public key (ed25519) unless you provide your own PEM here. Allowing unsigned releases disables a core protection — only for private builds you created yourself.</div></div>';
+    $$('[data-test]').forEach((b) => b.onclick = async () => {
+      // save current edits first so the test uses them
+      await saveSettings(true);
+      const r = await guarded(b, () => api('/api/shield/notify/test', { method: 'POST', body: { channel: b.dataset.test } }));
+      if (r) toast(r.sent ? 'Test notification sent — check the channel' : 'Channel not configured or failed: ' + JSON.stringify(r.channels || r), r.sent ? '' : 'err');
+    });
+  }
+  async function saveSettings(silent) {
+    const body = {};
+    $$('.sh-setting').forEach((el) => { body[el.dataset.key] = el.value; });
+    const r = await api('/api/shield/settings', { method: 'POST', body });
+    if (!silent) { toast(r.ok ? 'Settings saved (' + r.changed + ' keys)' : 'Save failed', r.ok ? '' : 'err'); loadSettings(); }
+  }
+  $('#btnSaveSettings').onclick = (e) => guarded(e.target.closest('button'), () => saveSettings(false));
+
+  // ---------- global actions ----------
+  $('#btnRefresh').onclick = (e) => guarded(e.target.closest('button'), () => loadAll());
+  $('#btnDiagnostics').onclick = (e) => confirmModal('Run full diagnostics', '<div style="font-size:13px;color:var(--sh-text-dim);line-height:1.6">Read-only sweep: health checks, integrity scan, all IDS detectors, VM guardian sweep, resource snapshot. Results appear in the respective tabs and anything found opens an incident with a human-readable diagnosis.</div>', 'Run diagnostics', false, async () => {
+    const r = await guarded(null, () => api('/api/shield/diagnostics', { method: 'POST' }));
+    if (r) {
+      const problems = (r.integrity && r.integrity.changes ? r.integrity.changes.length : 0) + (r.vmGuardian && r.vmGuardian.findings ? r.vmGuardian.findings.length : 0);
+      toast(problems ? 'Diagnostics finished — ' + problems + ' issue(s) found, see tabs' : 'Diagnostics finished — all clear', problems ? 'err' : '');
+      loadAll();
+    }
+  });
+  $('#btnEmergency').onclick = () => confirmModal('ACTIVATE EMERGENCY SHIELD MODE',
+    '<div class="sh-note danger"><svg width="15" height="15" style="flex-shrink:0;margin-top:1px"><use href="#sh-i-alert"/></svg><div><b>This is the incident lockdown.</b> All web sessions are revoked (including yours — you will log in again). Risky admin operations (VM/user deletion, settings, restores, updates) are blocked. Evidence is frozen. A recovery code is written for CLI unlock: <span class="sh-tag">sudo scripts/vnmctl emergency off --code &lt;code&gt;</span></div></div>' +
+    '<div class="sh-field" style="margin-top:12px"><label>Reason (recorded + notified)</label><input class="sh-input" id="emReason" placeholder="e.g. suspected compromise — investigating"></div>',
+    'ACTIVATE LOCKDOWN', true, async () => {
+      const r = await guarded(null, () => api('/api/shield/emergency/on', { method: 'POST', body: { reason: ($('#emReason') || {}).value || 'manual' } }));
+      if (r) { toast('EMERGENCY MODE ACTIVE — you have been logged out'); setTimeout(() => { window.location.href = '/login'; }, 1500); }
+    });
+
+  // ---------- boot ----------
+  function loadTab(name) {
+    const loaders = { overview: loadOverview, integrity: loadIntegrity, incidents: loadIncidents, security: loadSecurity, recovery: loadRecovery, backups: loadBackups, resources: loadResources, vms: loadVms, updates: loadUpdates, settings: loadSettings };
+    if (loaders[name]) loaders[name]();
+  }
+  async function loadAll() {
+    await loadOverview();
+    const active = ($$('.sh-tab').find((t) => t.classList.contains('active')) || {}).dataset;
+    if (active && active.tab && active.tab !== 'overview') loadTab(active.tab);
+  }
+  loadAll();
+  setInterval(() => loadOverview().catch(() => {}), 60000);
+})();
+</script>
+</body>
+</html>

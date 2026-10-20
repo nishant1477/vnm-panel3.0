@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .task-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+    .filter-chip { padding:6px 13px; border-radius:99px; font-size:12px; font-weight:650; cursor:pointer; border:1px solid var(--border-subtle, rgba(148,163,184,.18)); color:var(--text-muted); background:transparent; font-family:inherit; transition:all .18s ease; }
+    .filter-chip:hover { color:var(--text-primary); }
+    .filter-chip.active { color:#cffafe; background:linear-gradient(90deg, rgba(34,211,238,.18), rgba(129,140,248,.16)); border-color:rgba(34,211,238,.35); }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
+    <symbol id="i-backup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-task" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="task-page-icon"><svg width="19" height="19"><use href="#i-clock"/></svg></div>
+          <div>
+            <h1 class="page-title">Task Automation</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Background jobs with live progress, retries and schedules — backups, clones, migrations, start/stop</p>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="mini-btn primary" onclick="openScheduleModal()"><svg width="12" height="12"><use href="#i-plus"/></svg> New Schedule</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;" id="statusFilters">
+        <button class="filter-chip active" data-status="">All</button>
+        <button class="filter-chip" data-status="running">Running</button>
+        <button class="filter-chip" data-status="queued">Queued</button>
+        <button class="filter-chip" data-status="succeeded">Succeeded</button>
+        <button class="filter-chip" data-status="failed">Failed</button>
+        <button class="filter-chip" data-status="cancelled">Cancelled</button>
+      </div>
+
+      <div class="card" style="padding:18px; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Job Queue &amp; History</div>
+          <div style="font-size:11px; color:var(--text-muted);" id="taskCount"></div>
+        </div>
+        <div id="taskList" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="sk" style="height:64px;"></div><div class="sk" style="height:64px;"></div><div class="sk" style="height:64px;"></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="font-size:14px; font-weight:750; color:var(--text-primary);">Schedules</div>
+          <div style="font-size:11px; color:var(--text-muted);">every:2h · daily:03:30 · weekly:5:03:30 (Mon=1)</div>
+        </div>
+        <div id="scheduleList" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="sk" style="height:64px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+<!-- New schedule modal -->
+<div class="modal-overlay" id="scheduleModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="17" height="17"><use href="#i-clock"/></svg> New Schedule</div>
+      <button class="modal-close" onclick="closeModal('scheduleModal')"><svg width="15" height="15"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <label class="pform-label">Schedule name</label>
+      <input class="pinput" id="schName" placeholder="Nightly backup" style="margin-bottom:12px;">
+      <label class="pform-label">Task</label>
+      <select class="pselect" id="schType" style="margin-bottom:12px;">
+        <option value="vm.backup" data-premium="auto_backup">Create a VM backup</option>
+        <option value="vm.start" data-premium="scheduled_power">Start a VM</option>
+        <option value="vm.stop" data-premium="scheduled_power">Stop a VM</option>
+        <option value="vm.restart" data-premium="scheduled_power">Restart a VM</option>
+      </select>
+      <label class="pform-label">Virtual machine</label>
+      <select class="pselect" id="schVm" style="margin-bottom:12px;"></select>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <label class="pform-label">Schedule</label>
+          <select class="pselect" id="schSpec" onchange="document.getElementById('schCustom').style.display = this.value === 'custom' ? 'block' : 'none'">
+            <option value="daily:03:30">Every day at 03:30</option>
+            <option value="every:6h">Every 6 hours</option>
+            <option value="every:12h">Every 12 hours</option>
+            <option value="every:1h">Every hour</option>
+            <option value="weekly:5:03:30">Fridays at 03:30</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+        <div>
+          <label class="pform-label">Backup retention (backups only)</label>
+          <input class="pinput" id="schRetention" type="number" min="1" max="50" value="7" placeholder="keep N newest">
+        </div>
+      </div>
+      <input class="pinput" id="schCustom" placeholder="every:45m / daily:04:15 / weekly:7:02:00" style="display:none; margin-top:12px;">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('scheduleModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createSchedule()">Create Schedule</button>
+    </div>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+let currentFilter = '';
+let vmsCache = [];
+
+const TYPE_META = {
+  'vm.backup': { icon: 'i-backup', label: 'Backup' },
+  'vm.restore-backup': { icon: 'i-backup', label: 'Restore backup' },
+  'vm.restore-backup-new': { icon: 'i-backup', label: 'Recovery test' },
+  'vm.clone': { icon: 'i-task', label: 'Clone' },
+  'vm.migrate': { icon: 'i-task', label: 'Migrate' },
+  'vm.start': { icon: 'i-play', label: 'Start' },
+  'vm.stop': { icon: 'i-x', label: 'Stop' },
+  'vm.restart': { icon: 'i-refresh', label: 'Restart' },
+};
+
+document.getElementById('statusFilters').addEventListener('click', (e) => {
+  const chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentFilter = chip.dataset.status;
+  loadTasks();
+});
+
+async function loadTasks() {
+  const box = document.getElementById('taskList');
+  try {
+    const url = '/api/tasks' + (currentFilter ? '?status=' + currentFilter : '?limit=60');
+    const res = await fetch(url);
+    if (!res.ok) { box.innerHTML = '<div class="pempty">Could not load tasks</div>'; return; }
+    const tasks = await res.json();
+    document.getElementById('taskCount').textContent = tasks.length + ' task' + (tasks.length === 1 ? '' : 's');
+    if (!tasks.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-task"/></svg></div>
+        <div class="pe-title">No tasks ${currentFilter ? 'with status "' + esc(currentFilter) + '"' : 'yet'}</div>
+        <div class="pe-sub">Backups, clones, migrations and scheduled actions all run here with live progress and automatic retries.</div></div>`;
+      return;
+    }
+    const active = tasks.some(t => t.status === 'running' || t.status === 'queued');
+    box.innerHTML = tasks.map(t => {
+      const meta = TYPE_META[t.type] || { icon: 'i-task', label: t.type };
+      const vm = vmsCache.find(v => v.vm_id === t.target_id);
+      const retryable = t.status === 'failed' || t.status === 'cancelled';
+      const cancellable = t.status === 'running' || t.status === 'queued';
+      return `<div class="task-row">
+        <div class="task-icon"><svg width="16" height="16"><use href="#${meta.icon}"/></svg></div>
+        <div class="task-main">
+          <div class="task-title">
+            ${esc(t.label || meta.label)}
+            <span class="pill ${esc(t.status)}">${esc(t.status)}</span>
+            ${t.attempts > 1 ? `<span style="font-size:10.5px; color:var(--text-muted);">attempt ${t.attempts}/${t.max_attempts}</span>` : ''}
+          </div>
+          <div class="task-sub">
+            <span>#${t.id} · ${esc(meta.label)}</span>
+            ${vm ? `<span>VM: <a href="/admin/vm/${vm.vm_id}" style="color:var(--accent-primary); text-decoration:none;">${esc(vm.vm_name)}</a></span>` : (t.target_id ? `<span>VM #${t.target_id}</span>` : '')}
+            <span>by ${esc(t.created_by_name || 'system')}</span>
+            <span>${fmt.rel(t.created_at)}</span>
+            ${t.progress_text ? `<span style="color:var(--accent-primary);">${esc(t.progress_text)}</span>` : ''}
+            ${t.error ? `<span style="color:#f87171;">${esc(String(t.error).slice(0, 90))}</span>` : ''}
+          </div>
+          ${(t.status === 'running' || t.status === 'queued') ? `
+          <div class="task-progress"><i style="width:${t.progress || 0}%"></i></div>` : ''}
+        </div>
+        <div class="task-actions">
+          ${retryable ? `<button class="mini-btn" onclick="retryTask(${t.id})">Retry</button>` : ''}
+          ${cancellable ? `<button class="mini-btn danger" onclick="cancelTask(${t.id})">Cancel</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    // Poll faster while something is active
+    if (active) setTimeout(loadTasks, 2500);
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load tasks</div>'; }
+}
+
+async function loadVms() {
+  try {
+    const res = await fetch('/api/admin/vms');
+    if (res.ok) vmsCache = await res.json();
+  } catch (e) {}
+}
+
+async function cancelTask(id) {
+  if (!confirm('Cancel task #' + id + '?')) return;
+  const res = await fetch('/api/tasks/' + id + '/cancel', { method: 'POST' });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not cancel', 'error');
+  VNM.toast(d.cancelling ? 'Cancellation requested — the task stops at its next checkpoint' : 'Task cancelled', 'success');
+  loadTasks();
+}
+async function retryTask(id) {
+  const res = await fetch('/api/tasks/' + id + '/retry', { method: 'POST' });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not retry', 'error');
+  VNM.toast('Task re-queued', 'success');
+  loadTasks();
+}
+
+async function loadSchedules() {
+  const box = document.getElementById('scheduleList');
+  try {
+    const res = await fetch('/api/task-schedules');
+    if (!res.ok) { box.innerHTML = '<div class="pempty">Could not load schedules</div>'; return; }
+    const rows = await res.json();
+    if (!rows.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-clock"/></svg></div>
+        <div class="pe-title">No schedules yet</div>
+        <div class="pe-sub">Automate nightly backups with retention, or schedule VM start/stop windows. Missed runs never double-fire while a previous one is still active.</div></div>`;
+      return;
+    }
+    box.innerHTML = rows.map(s => {
+      const meta = TYPE_META[s.task_type] || { icon: 'i-task', label: s.task_type };
+      const vm = vmsCache.find(v => v.vm_id === s.target_id);
+      return `<div class="task-row">
+        <div class="task-icon" style="background:rgba(192,132,252,.12); border-color:rgba(192,132,252,.22); color:#d8b4fe;"><svg width="16" height="16"><use href="#${meta.icon}"/></svg></div>
+        <div class="task-main">
+          <div class="task-title">${esc(s.name)}
+            <span class="pill ${s.enabled ? 'scheduled' : 'cancelled'}">${s.enabled ? 'active' : 'paused'}</span>
+          </div>
+          <div class="task-sub">
+            <span>${esc(meta.label)}${vm ? ' · ' + esc(vm.vm_name) : ''}</span>
+            <span style="color:var(--accent-primary);">${esc(s.schedule_human)}</span>
+            <span>next: ${fmt.when(s.next_run)}</span>
+            <span>last: ${s.last_run ? fmt.rel(s.last_run) : 'never'}</span>
+          </div>
+        </div>
+        <div class="task-actions">
+          <button class="mini-btn" onclick="runScheduleNow(${s.id})">Run now</button>
+          <button class="mini-btn" onclick="toggleSchedule(${s.id}, ${s.enabled ? 'false' : 'true'})">${s.enabled ? 'Pause' : 'Resume'}</button>
+          <button class="mini-btn danger" onclick="deleteSchedule(${s.id})"><svg width="12" height="12"><use href="#i-trash"/></svg></button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load schedules</div>'; }
+}
+
+async function openScheduleModal() {
+  const sel = document.getElementById('schVm');
+  sel.innerHTML = '<option value="">Loading VMs…</option>';
+  openModal('scheduleModal');
+  try {
+    if (!vmsCache.length) await loadVms();
+    sel.innerHTML = vmsCache.map(v => `<option value="${v.vm_id}">${esc(v.vm_name)} (#${v.vm_id})</option>`).join('') || '<option value="">No VMs</option>';
+  } catch (e) { sel.innerHTML = '<option value="">Failed to load</option>'; }
+}
+
+async function createSchedule() {
+  const type = document.getElementById('schType').value;
+  const vmId = document.getElementById('schVm').value;
+  if (!vmId) return VNM.toast('Select a VM', 'error');
+  // Premium tier pre-check (server enforces too — this just avoids the ugly 402 toast)
+  if (type === 'vm.backup' && !(VNM.premium && VNM.premium.ensure('auto_backup'))) return;
+  if (type !== 'vm.backup' && !(VNM.premium && VNM.premium.ensure('scheduled_power'))) return;
+  let schedule = document.getElementById('schSpec').value;
+  if (schedule === 'custom') schedule = document.getElementById('schCustom').value.trim();
+  const params = {};
+  if (type === 'vm.backup') params.retention = parseInt(document.getElementById('schRetention').value) || 7;
+  const res = await fetch('/api/task-schedules', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: document.getElementById('schName').value.trim() || 'Schedule', task_type: type, target_id: parseInt(vmId), schedule, params })
+  });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not create schedule', 'error');
+  closeModal('scheduleModal');
+  VNM.toast('Schedule created', 'success');
+  loadSchedules();
+}
+
+async function runScheduleNow(id) {
+  const res = await fetch('/api/task-schedules/' + id + '/run', { method: 'POST' });
+  const d = await res.json();
+  if (!res.ok) return VNM.toast(d.message || 'Could not run', 'error');
+  VNM.toast('Scheduled task triggered — watch the queue', 'success');
+  loadTasks();
+}
+async function toggleSchedule(id, enabled) {
+  await fetch('/api/task-schedules/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: enabled === 'true' }) });
+  loadSchedules();
+}
+async function deleteSchedule(id) {
+  if (!confirm('Delete this schedule?')) return;
+  await fetch('/api/task-schedules/' + id, { method: 'DELETE' });
+  loadSchedules();
+}
+
+window.addEventListener('load', async () => {
+  await loadVms();
+  loadTasks();
+  loadSchedules();
+  setInterval(loadTasks, 10000);
+  setInterval(loadSchedules, 60000);
+});
+
+// ============ Premium chrome for this page ============
+function tasksPremiumChrome() {
+  const on = !!(VNM.premium && VNM.premium.isOn());
+  document.querySelectorAll('#schType option[data-premium]').forEach((o) => {
+    const base = o.textContent.replace(/ · PRO$/, '');
+    o.textContent = on ? base : base + ' · PRO';
+  });
+}
+document.addEventListener('vnm:premium', tasksPremiumChrome);
+</script>
+</body>
+</html>

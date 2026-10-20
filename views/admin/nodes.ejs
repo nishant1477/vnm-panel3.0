@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title || 'Nodes - VNM Admin Panel' %></title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <style>
+    .nodes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px; }
+    .node-card {
+      position:relative;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border:1px solid var(--border-card);
+      border-radius:var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding:20px;
+      overflow:hidden;
+      transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal);
+    }
+    .node-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background: var(--gradient-primary); opacity:0.6;
+    }
+    .node-card.online::before { background: linear-gradient(90deg, transparent, var(--accent-green), transparent); opacity:0.8; }
+    .node-card:hover { border-color: var(--border-color); box-shadow: var(--shadow-card), var(--shadow-glow); transform: translateY(-2px); }
+    .node-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .node-name-row { display:flex; align-items:center; gap:9px; min-width:0; }
+    .node-icon-badge { width:34px; height:34px; border-radius:10px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-secondary); flex-shrink:0; }
+    .node-name { font-size:15px; font-weight:700; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .node-mode-badge { font-size:9.5px; text-transform:uppercase; letter-spacing:0.6px; padding:2px 8px; border-radius:20px; font-weight:700; display:inline-block; margin-top:2px; }
+    .node-mode-badge.local { background:rgba(255,255,255,0.08); color:var(--text-secondary); border:1px solid var(--border-color); }
+    .node-mode-badge.remote { background:rgba(0,136,255,0.12); color:#3B9EFF; border:1px solid rgba(0,136,255,0.3); }
+    .node-status { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text-muted); margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--border-subtle); }
+    .status-dot-node { width:7px; height:7px; border-radius:50%; background:#EF4444; flex-shrink:0; }
+    .status-dot-node.online { background:#10B981; animation: status-pulse 2s ease-in-out infinite; box-shadow: var(--shadow-glow-green); }
+    .node-metrics { display:grid; grid-template-columns:1fr 1fr; gap:14px 12px; margin-bottom:14px; }
+    .node-metric { font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; font-weight:600; }
+    .node-metric .val { font-size:14px; color:var(--text-primary); font-weight:700; margin-top:3px; text-transform:none; letter-spacing:normal; }
+    .node-metric .progress { height:4px; margin-top:6px; border-radius:2px; }
+    .node-addr { font-family:'SF Mono', monospace; font-size:11px; color:var(--text-muted); margin-bottom:14px; background:rgba(255,255,255,0.03); padding:5px 9px; border-radius:6px; border:1px solid var(--border-subtle); }
+    .node-actions { display:flex; gap:6px; flex-wrap:wrap; padding-top:2px; }
+    .code-block { background:#050507; border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:14px; font-family:'SF Mono', monospace; font-size:12px; line-height:1.6; color:#7DD3FC; word-break:break-all; white-space:pre-wrap; }
+    .health-check-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border-subtle); font-size:13px; }
+    .health-check-row:last-child { border-bottom:none; }
+    .health-icon { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .health-icon.pass { background:rgba(16,185,129,0.15); color:#10B981; }
+    .health-icon.fail { background:rgba(239,68,68,0.15); color:#EF4444; }
+    .nodes-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/admin/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="nodes-page-icon"><svg width="19" height="19"><use href="#i-server"/></svg></div>
+          <div>
+            <h1 class="page-title">Nodes</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Local and remote hosts running your VMs</p>
+          </div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost btn-sm" onclick="loadNodes()"><svg width="13" height="13"><use href="#i-refresh"/></svg> Refresh</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modalAddNode')"><svg width="13" height="13"><use href="#i-plus"/></svg> Add Node</button>
+        </div>
+      </div>
+
+      <div class="nodes-grid" id="nodesGrid">
+        <div class="empty-state" style="grid-column:1/-1; padding:40px;">Loading nodes…</div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+<!-- Add Node Modal -->
+<div class="modal-overlay" id="modalAddNode">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="18" height="18"><use href="#i-server"/></svg> Add Node</div>
+      <button class="modal-close" onclick="closeModal('modalAddNode')"><svg width="16" height="16"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Mode</label>
+        <div style="display:flex; gap:10px;">
+          <label style="flex:1; display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--border-color); border-radius:var(--radius-sm); opacity:0.5; cursor:not-allowed;">
+            <input type="radio" name="nodeMode" value="local" disabled> Local <span style="font-size:11px; color:var(--text-muted);">(already exists)</span>
+          </label>
+          <label style="flex:1; display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--border-color); border-radius:var(--radius-sm); cursor:pointer;">
+            <input type="radio" name="nodeMode" value="remote" checked> Remote
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Node name</label>
+        <input type="text" class="form-control" id="newNodeName" placeholder="node-02-frankfurt" onkeydown="if(event.key==='Enter')registerNode()">
+      </div>
+      <p style="font-size:12px; color:var(--text-muted);">You'll get a one-time install command to run on the remote server. The node will show as Online once its agent connects.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalAddNode')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="registerNode()">Register Node</button>
+    </div>
+  </div>
+</div>
+
+<!-- Install Command Modal -->
+<div class="modal-overlay" id="modalInstallCmd">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="18" height="18"><use href="#i-key"/></svg> Install command</div>
+      <button class="modal-close" onclick="closeModal('modalInstallCmd')"><svg width="16" height="16"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="badge badge-warning" style="margin-bottom:12px;"><svg width="12" height="12"><use href="#i-alert"/></svg> Shown once — copy it now</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-top:0;">Run this as root on the target server:</p>
+      <div class="code-block" id="installCmdText"></div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="copyInstallCmd()"><svg width="12" height="12"><use href="#i-copy"/></svg> Copy command</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-sm" onclick="closeModal('modalInstallCmd'); loadNodes();">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Test Node Modal -->
+<div class="modal-overlay" id="modalTestNode">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title"><svg width="18" height="18"><use href="#i-activity"/></svg> Node health check</div>
+      <button class="modal-close" onclick="closeModal('modalTestNode')"><svg width="16" height="16"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body" id="testNodeBody"><div class="spinner"></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalTestNode')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function svg(id, size = 14) { return `<svg width="${size}" height="${size}"><use href="#${id}"/></svg>`; }
+function escHtml(str) { if (!str && str !== 0) return ''; return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function showToast(msg, type = 'info') {
+  let c = document.getElementById('toastContainer');
+  if (!c) { c = document.createElement('div'); c.id = 'toastContainer'; c.className = 'toast-container'; document.body.appendChild(c); }
+  const t = document.createElement('div'); t.className = `toast toast-${type}`;
+  t.innerHTML = `<span class="toast-message">${escHtml(msg)}</span><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+  c.appendChild(t); setTimeout(() => t.remove(), 4500);
+}
+function confirmAction(msg, title) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--border-card);border-radius:var(--radius-lg);max-width:420px;width:100%;overflow:hidden;">
+      <div style="padding:20px;"><h3 style="margin:0 0 8px;color:var(--text-primary);font-size:15px;">${escHtml(title)}</h3><p style="margin:0;color:var(--text-secondary);font-size:13px;">${escHtml(msg)}</p></div>
+      <div style="padding:14px 20px;border-top:1px solid var(--border-subtle);display:flex;gap:10px;justify-content:flex-end;">
+        <button id="cAcancel" style="padding:8px 16px;border-radius:6px;background:transparent;color:var(--text-secondary);border:1px solid var(--border-color);cursor:pointer;">Cancel</button>
+        <button id="cAconfirm" style="padding:8px 16px;border-radius:6px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;cursor:pointer;font-weight:600;">Confirm</button>
+      </div></div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#cAconfirm').onclick = () => { overlay.remove(); resolve(true); };
+    overlay.querySelector('#cAcancel').onclick = () => { overlay.remove(); resolve(false); };
+  });
+}
+
+function fmtBytes(b) {
+  if (b === null || b === undefined) return '—';
+  const u = ['B','KB','MB','GB','TB']; let i = 0; let v = b;
+  while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+  return v.toFixed(i === 0 ? 0 : 1) + ' ' + u[i];
+}
+
+let currentInstallCmd = '';
+let nodesCache = [];
+
+async function loadNodes() {
+  try {
+    const res = await fetch('/api/nodes');
+    const data = await res.json();
+    nodesCache = data.nodes || [];
+    renderNodes();
+  } catch (e) { showToast('Could not load nodes', 'error'); }
+}
+
+function renderNodes() {
+  const grid = document.getElementById('nodesGrid');
+  if (nodesCache.length === 0) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No nodes yet</div>'; return; }
+  grid.innerHTML = nodesCache.map((n) => {
+    const cpuPct = n.cpu_usage_percent || 0;
+    const ramPct = n.ram_total ? Math.round((n.ram_used / n.ram_total) * 100) : 0;
+    const diskPct = n.disk_total ? Math.round((n.disk_used / n.disk_total) * 100) : 0;
+    return `<div class="node-card ${n.online ? 'online' : ''}">
+      <div class="node-card-head">
+        <div class="node-name-row">
+          <div class="node-icon-badge">${svg('i-server', 17)}</div>
+          <div style="min-width:0;">
+            <div class="node-name">${escHtml(n.name)}</div>
+            <span class="node-mode-badge ${n.mode}">${n.mode}</span>
+          </div>
+        </div>
+      </div>
+      <div class="node-status"><span class="status-dot-node ${n.online ? 'online' : ''}"></span> ${n.online ? 'Online' : 'Offline'} ${n.last_seen ? '· last seen ' + new Date(n.last_seen).toLocaleString() : ''}</div>
+      ${n.mode === 'remote' ? `<div class="node-addr">${escHtml(n.address || 'awaiting first connection')}</div>` : ''}
+      <div class="node-metrics">
+        <div class="node-metric">CPU<div class="val">${cpuPct}%</div><div class="progress"><div class="progress-bar ${cpuPct>85?'red':cpuPct>60?'orange':'green'}" style="width:${cpuPct}%"></div></div></div>
+        <div class="node-metric">RAM<div class="val">${fmtBytes(n.ram_used)} / ${fmtBytes(n.ram_total)}</div><div class="progress"><div class="progress-bar ${ramPct>85?'red':ramPct>60?'orange':'green'}" style="width:${ramPct}%"></div></div></div>
+        <div class="node-metric">Disk<div class="val">${fmtBytes(n.disk_used)} / ${fmtBytes(n.disk_total)}</div><div class="progress"><div class="progress-bar ${diskPct>85?'red':diskPct>60?'orange':'green'}" style="width:${diskPct}%"></div></div></div>
+        <div class="node-metric">KVM<div class="val">${n.kvm_available ? '✓ Available' : '✗ Unavailable'}</div></div>
+      </div>
+      <div class="node-actions">
+        <button class="btn btn-outline btn-sm" onclick="testNode(${n.id})">${svg('i-activity',12)} Test</button>
+        <a class="btn btn-outline btn-sm" href="/admin/nodes/${n.id}/terminal">${svg('i-terminal',12)} Terminal</a>
+        ${n.mode === 'remote' ? `<button class="btn btn-ghost btn-sm" onclick="rotateToken(${n.id})">${svg('i-key',12)} Rotate token</button>` : ''}
+        ${n.mode === 'remote' ? `<button class="btn btn-ghost btn-sm" onclick="setNodeAddress(${n.id}, '${escHtml(n.name).replace(/'/g,"\\'")}')">${svg('i-info',12)} Set address</button>` : ''}
+        ${n.mode === 'remote' ? `<button class="btn btn-ghost btn-sm" onclick="deleteNode(${n.id}, '${escHtml(n.name).replace(/'/g,"\\'")}')">${svg('i-trash',12)} Delete</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function registerNode() {
+  const name = document.getElementById('newNodeName').value.trim();
+  if (!name) return;
+  try {
+    const res = await fetch('/api/nodes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, mode: 'remote' }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    closeModal('modalAddNode');
+    document.getElementById('newNodeName').value = '';
+    currentInstallCmd = data.installCommand;
+    document.getElementById('installCmdText').textContent = data.installCommand;
+    openModal('modalInstallCmd');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function rotateToken(id) {
+  const ok = await confirmAction('The current token will stop working immediately once the agent reconnects with the new one. You\'ll need to update the node\'s config.', 'Rotate token?');
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/nodes/${id}/rotate-token`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    currentInstallCmd = data.installCommand;
+    document.getElementById('installCmdText').textContent = data.installCommand;
+    openModal('modalInstallCmd');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function setNodeAddress(id, name) {
+  // The address users should use to reach VMs on this node (SSH etc.).
+  // Empty = back to auto-detect (the address the agent last dialed in from).
+  const address = prompt('Public address of "' + name + '" (hostname or IP users use to SSH into VMs on this node).\nLeave empty to switch back to auto-detect:', '');
+  if (address === null) return;
+  try {
+    const res = await fetch('/api/nodes/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ address: address.trim() }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showToast(address.trim() ? 'Node address set' : 'Node address cleared (auto-detect)', 'success');
+    loadNodes();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteNode(id, name) {
+  const ok = await confirmAction(`Delete "${name}"? Reassign or remove its VMs first.`, 'Delete node?');
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/nodes/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showToast('Node deleted', 'success');
+    loadNodes();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+function copyInstallCmd() {
+  navigator.clipboard && navigator.clipboard.writeText(currentInstallCmd);
+  showToast('Copied', 'success');
+}
+
+async function testNode(id) {
+  openModal('modalTestNode');
+  document.getElementById('testNodeBody').innerHTML = '<div class="spinner"></div>';
+  try {
+    const res = await fetch(`/api/nodes/${id}/test`, { method: 'POST' });
+    const data = await res.json();
+    document.getElementById('testNodeBody').innerHTML = (data.checks || []).map((c) => `
+      <div class="health-check-row">
+        <span class="health-icon ${c.pass ? 'pass' : 'fail'}">${svg(c.pass ? 'i-check' : 'i-x', 12)}</span>
+        <div style="flex:1;"><div style="color:var(--text-primary);">${escHtml(c.label)}</div><div style="font-size:11px;color:var(--text-muted);">${escHtml(c.detail || '')}</div></div>
+      </div>`).join('') || '<p style="color:var(--text-muted);">No result</p>';
+  } catch (e) {
+    document.getElementById('testNodeBody').innerHTML = `<p style="color:#EF4444;">${escHtml(e.message)}</p>`;
+  }
+}
+
+let nodesWs = null;
+function connectNodesWs() {
+  const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  nodesWs = new WebSocket(proto + '//' + window.location.host + '/nodes-watch');
+  nodesWs.onmessage = (evt) => {
+    try {
+      const msg = JSON.parse(evt.data);
+      if (msg.type === 'node-update') {
+        const idx = nodesCache.findIndex((n) => n.id === msg.node.id);
+        if (idx >= 0) nodesCache[idx] = msg.node; else nodesCache.push(msg.node);
+        renderNodes();
+      }
+    } catch (e) {}
+  };
+  nodesWs.onclose = () => {};
+}
+
+window.addEventListener('load', () => { loadNodes(); connectNodesWs(); });
+</script>
+
+  <script src="/js/vnm-motion.js" defer></script>
+</body>
+</html>

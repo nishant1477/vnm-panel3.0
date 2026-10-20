@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <link rel="stylesheet" href="/css/vnm-platform.css">
+  <style>
+    .task-page-icon { width:38px; height:38px; border-radius:11px; background:var(--gradient-primary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; color:var(--text-primary); flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-backup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  </defs>
+</svg>
+
+<div class="admin-wrapper">
+  <%- include('../partials/users/sidebar') %>
+
+  <div class="admin-main">
+    <%- include('../partials/admin/header') %>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="task-page-icon"><svg width="19" height="19"><use href="#i-clock"/></svg></div>
+          <div>
+            <h1 class="page-title">My Tasks</h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Your backup jobs, clones and scheduled actions with live progress</p>
+          </div>
+        </div>
+        <button class="mini-btn" onclick="loadTasks()"><svg width="13" height="13"><use href="#i-refresh"/></svg> Refresh</button>
+      </div>
+
+      <div id="taskList" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="sk" style="height:64px;"></div><div class="sk" style="height:64px;"></div>
+      </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+  </div>
+</div>
+
+  <script src="/js/vnm-motion.js" defer></script>
+  <script src="/js/vnm-platform.js"></script>
+  <script>
+const fmt = VNM.fmt, esc = VNM.esc;
+const TYPE_META = {
+  'vm.backup': { icon: 'i-backup', label: 'Backup' },
+  'vm.restore-backup': { icon: 'i-backup', label: 'Restore backup' },
+  'vm.restore-backup-new': { icon: 'i-backup', label: 'Recovery test' },
+  'vm.clone': { icon: 'i-refresh', label: 'Clone' },
+  'vm.migrate': { icon: 'i-refresh', label: 'Migrate' },
+  'vm.start': { icon: 'i-play', label: 'Start' },
+  'vm.stop': { icon: 'i-x', label: 'Stop' },
+  'vm.restart': { icon: 'i-refresh', label: 'Restart' },
+};
+
+async function loadTasks() {
+  const box = document.getElementById('taskList');
+  try {
+    const res = await fetch('/api/tasks?limit=50');
+    if (!res.ok) { box.innerHTML = '<div class="pempty">Could not load tasks</div>'; return; }
+    const tasks = await res.json();
+    if (!tasks.length) {
+      box.innerHTML = `<div class="pempty"><div class="pe-icon"><svg width="22" height="22"><use href="#i-clock"/></svg></div>
+        <div class="pe-title">No tasks yet</div>
+        <div class="pe-sub">Backups you trigger from a VM's page, and schedules you create, run here with live progress.</div></div>`;
+      return;
+    }
+    const active = tasks.some(t => t.status === 'running' || t.status === 'queued');
+    box.innerHTML = tasks.map(t => {
+      const meta = TYPE_META[t.type] || { icon: 'i-clock', label: t.type };
+      const retryable = t.status === 'failed' || t.status === 'cancelled';
+      const cancellable = t.status === 'running' || t.status === 'queued';
+      return `<div class="task-row">
+        <div class="task-icon"><svg width="16" height="16"><use href="#${meta.icon}"/></svg></div>
+        <div class="task-main">
+          <div class="task-title">${esc(t.label || meta.label)} <span class="pill ${esc(t.status)}">${esc(t.status)}</span></div>
+          <div class="task-sub">
+            <span>#${t.id} · ${esc(meta.label)}</span>
+            <span><a href="/vm/${t.target_id}" style="color:var(--accent-primary); text-decoration:none;">VM #${t.target_id}</a></span>
+            <span>${fmt.rel(t.created_at)}</span>
+            ${t.progress_text ? `<span style="color:var(--accent-primary);">${esc(t.progress_text)}</span>` : ''}
+            ${t.error ? `<span style="color:#f87171;">${esc(String(t.error).slice(0, 80))}</span>` : ''}
+          </div>
+          ${(t.status === 'running' || t.status === 'queued') ? `<div class="task-progress"><i style="width:${t.progress || 0}%"></i></div>` : ''}
+        </div>
+        <div class="task-actions">
+          ${retryable ? `<button class="mini-btn" onclick="retryTask(${t.id})">Retry</button>` : ''}
+          ${cancellable ? `<button class="mini-btn danger" onclick="cancelTask(${t.id})">Cancel</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    if (active) setTimeout(loadTasks, 2500);
+  } catch (e) { box.innerHTML = '<div class="pempty">Could not load tasks</div>'; }
+}
+
+async function cancelTask(id) {
+  if (!confirm('Cancel task #' + id + '?')) return;
+  const res = await fetch('/api/tasks/' + id + '/cancel', { method: 'POST' });
+  const d = await res.json();
+  res.ok ? VNM.toast(d.cancelling ? 'Cancellation requested' : 'Task cancelled', 'success') : VNM.toast(d.message || 'Failed', 'error');
+  loadTasks();
+}
+async function retryTask(id) {
+  const res = await fetch('/api/tasks/' + id + '/retry', { method: 'POST' });
+  if (res.ok) { VNM.toast('Task re-queued', 'success'); loadTasks(); }
+}
+
+window.addEventListener('load', () => {
+  loadTasks();
+  setInterval(loadTasks, 10000);
+});
+</script>
+</body>
+</html>

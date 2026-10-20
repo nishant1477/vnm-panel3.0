@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title><%= title || 'VM Console - VNM Panel' %></title>
+  <link rel="icon" href="<%= siteLogo %>" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/vnm-motion.css">
+  <style>
+    body { background: #050508; }
+    
+    .console-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .console-header {
+      height: 52px;
+      background: #0c0c14;
+      border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    
+    .console-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    #terminal {
+      flex: 1;
+      background: #050508;
+      padding: 16px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    
+    #terminal::-webkit-scrollbar { width: 6px; }
+    #terminal::-webkit-scrollbar-track { background: #0a0a0f; }
+    #terminal::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 3px; }
+    
+    .console-input-bar {
+      background: #0c0c14;
+      border-top: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    
+    .console-prompt {
+      color: #6366f1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    #cmdInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      caret-color: #6366f1;
+    }
+    
+    #cmdInput::placeholder { color: #475569; }
+    
+    .ansi-green { color: #10b981; }
+    .ansi-red { color: #ef4444; }
+    .ansi-yellow { color: #f59e0b; }
+    .ansi-blue { color: #60a5fa; }
+    .ansi-cyan { color: #22d3ee; }
+    .ansi-white { color: #f1f5f9; }
+    .ansi-gray { color: #64748b; }
+    .ansi-bold { font-weight: bold; }
+    
+    @keyframes scan-line {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+    
+    .crt-effect {
+      position: relative;
+    }
+    
+    .crt-effect::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.02) 0px,
+        rgba(0,0,0,0.02) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* DEEP FIX (mobile overlap): the 52px single-row header could not fit
+       Back + title + status pill + mode toggle + 3 buttons on a phone, so
+       the clusters rendered on top of each other. Let the header wrap into
+       two rows and drop the decoration dots on the narrowest screens.
+       (console-header-mobile) */
+    @media (max-width: 720px) {
+      .console-header { flex-wrap: wrap; height: auto; min-height: 52px; padding: 8px 12px; row-gap: 8px; }
+      .console-header > div { flex-wrap: wrap; }
+      .console-mode-btn { font-size: 11px; padding: 4px 8px; }
+      #terminal { padding: 10px; font-size: 12px; }
+      .console-input-bar { padding: 8px 10px; }
+    }
+    @media (max-width: 480px) {
+      .terminal-dot { display: none; }
+      .console-mode-btn { font-size: 10px; }
+    }
+
+    /* ---- Console Mode selector ---- */
+    .console-mode-toggle {
+      position: relative;
+      display: flex;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 3px;
+      flex-shrink: 0;
+      gap: 2px;
+    }
+    .console-mode-highlight {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: calc(50% - 3px);
+      height: calc(100% - 6px);
+      background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(99,102,241,0.2));
+      border: 1px solid rgba(99,102,241,0.4);
+      border-radius: 6px;
+      transition: transform 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+      z-index: 0;
+    }
+    .console-mode-btn {
+      position: relative;
+      z-index: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted, #94a3b8);
+      font-size: 11.5px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s ease;
+    }
+    .console-mode-btn.active { color: #c7d2fe; }
+    .console-mode-btn:hover:not(.active) { color: #e2e8f0; }
+
+    /* ---- Console pane switching ---- */
+    .console-body { position: relative; }
+    .console-pane {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(8px) scale(0.995);
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    .console-pane.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    #vncPaneBody { flex: 1; position: relative; background: #000; overflow: hidden; }
+    #vncScreen { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    #vncScreen canvas { image-rendering: pixelated; }
+
+    .vnc-overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px;
+      background: rgba(5,5,8,0.88);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      text-align: center;
+      padding: 24px;
+    }
+    .vnc-overlay.visible { opacity: 1; pointer-events: auto; }
+    .vnc-overlay-message {
+      color: #cbd5e1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+    .vnc-overlay[data-state="error"] .vnc-overlay-message { color: #fca5a5; }
+    .vnc-spinner {
+      width: 30px; height: 30px;
+      border: 3px solid rgba(99,102,241,0.2);
+      border-top-color: #818cf8;
+      border-radius: 50%;
+      animation: vnc-spin 0.8s linear infinite;
+    }
+    .vnc-overlay[data-state="error"] .vnc-spinner,
+    .vnc-overlay[data-state="offline"] .vnc-spinner { display: none; }
+    @keyframes vnc-spin { to { transform: rotate(360deg); } }
+    .vnc-overlay-icon { font-size: 26px; display: none; }
+    .vnc-overlay[data-state="error"] .vnc-overlay-icon,
+    .vnc-overlay[data-state="offline"] .vnc-overlay-icon { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="console-wrapper">
+
+  <!-- Console Header -->
+  <div class="console-header">
+    <div class="terminal-dot red"></div>
+    <div class="terminal-dot yellow"></div>
+    <div class="terminal-dot green"></div>
+
+    <div style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0;">
+      <a href="/vm/<%= vmId %>" style="color: var(--text-muted); text-decoration: none; font-size: 12px; display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back
+      </a>
+
+      <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.1); flex-shrink: 0;"></div>
+
+      <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" style="flex-shrink:0;">
+          <polyline points="4 17 10 11 4 5"></polyline>
+          <line x1="12" y1="19" x2="20" y2="19"></line>
+        </svg>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #a5f3fc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          Console: VM #<%= vmId %> <span id="vmNameLabel" style="color: #64748b;"></span>
+        </span>
+      </div>
+
+      <span id="wsStatus" style="margin-left: auto; font-size: 11px; padding: 3px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); color: #ef4444; flex-shrink: 0;">
+        ⚫ Connecting...
+      </span>
+    </div>
+
+    <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
+      <div class="console-mode-toggle" role="tablist" aria-label="Console Type">
+        <span class="console-mode-highlight" id="modeHighlight"></span>
+        <button type="button" class="console-mode-btn active" id="modeBtnBuiltin" role="tab" aria-selected="true" onclick="setConsoleMode('builtin')">VNM Built-in Console</button>
+        <button type="button" class="console-mode-btn" id="modeBtnNovnc" role="tab" aria-selected="false" onclick="setConsoleMode('novnc')">noVNC</button>
+      </div>
+      <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.1);"></div>
+      <button onclick="clearTerminal()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 11px;" title="Clear console">
+        Clear
+      </button>
+      <button onclick="scrollToBottom()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 11px;" title="Scroll to bottom">
+        ↓ Bottom
+      </button>
+      <button onclick="toggleWrap()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 11px;" id="wrapBtn" title="Toggle word wrap">
+        Wrap
+      </button>
+    </div>
+  </div>
+
+  <!-- Console Body -->
+  <div class="console-body">
+    <div id="builtinConsole" class="console-pane active">
+    <div id="terminal" class="crt-effect">
+      <span style="color: #6366f1;"><%= siteName %></span> - VM Console (ID: <%= vmId %>)
+      
+      <span style="color: #64748b;">Connecting to WebSocket...</span>
+      
+    </div>
+
+    <!-- Input Bar -->
+    <div class="console-input-bar">
+      <span class="console-prompt">vm@<%= vmId %>:~$</span>
+      <input
+        type="text"
+        id="cmdInput"
+        placeholder="Type command and press Enter..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      >
+      <button onclick="sendCommand()" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); color: #818cf8; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 12px; font-family: inherit; white-space: nowrap;">
+        Send ↵
+      </button>
+    </div>
+    </div>
+
+    <div id="novncConsole" class="console-pane">
+      <div id="vncPaneBody">
+        <div id="vncScreen"></div>
+        <div class="vnc-overlay" id="vncOverlay" data-state="connecting">
+          <div class="vnc-spinner"></div>
+          <div class="vnc-overlay-icon" id="vncOverlayIcon">⚠️</div>
+          <div class="vnc-overlay-message" id="vncOverlayMessage">Connecting…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast Container (no sidebar) -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const vmId = <%= vmId %>;
+const userId = <%= userId %>;
+let ws = null;
+let commandHistory = [];
+let historyIndex = -1;
+let autoScroll = true;
+let wordWrap = true;
+let consoleMode = 'builtin';        // 'builtin' | 'novnc' - only one console is ever open at a time
+let builtinIntentionalClose = false; // suppresses the auto-reconnect when WE closed the built-in ws (mode switch)
+
+// Verify ownership and load VM name
+fetch(`/api/vms/${vmId}`)
+  .then(r => r.json())
+  .then(vm => {
+    // Check ownership
+    if (vm.owner_id !== userId) {
+      window.location.href = '/vms';
+      return;
+    }
+    const label = document.getElementById('vmNameLabel');
+    if (label) label.textContent = `— ${vm.vm_name || ''}`;
+  })
+  .catch(() => {
+    window.location.href = '/vms';
+  });
+
+// ============= Console Mode selector =============
+// Selecting a mode opens ONLY that console's connection and tears the
+// other one down first - the two are never open at the same time.
+function setConsoleMode(mode) {
+  if (mode === consoleMode) return;
+  consoleMode = mode;
+
+  document.getElementById('modeBtnBuiltin').classList.toggle('active', mode === 'builtin');
+  document.getElementById('modeBtnBuiltin').setAttribute('aria-selected', mode === 'builtin');
+  document.getElementById('modeBtnNovnc').classList.toggle('active', mode === 'novnc');
+  document.getElementById('modeBtnNovnc').setAttribute('aria-selected', mode === 'novnc');
+  document.getElementById('modeHighlight').style.transform = mode === 'builtin' ? 'translateX(0)' : 'translateX(100%)';
+
+  document.getElementById('builtinConsole').classList.toggle('active', mode === 'builtin');
+  document.getElementById('novncConsole').classList.toggle('active', mode === 'novnc');
+
+  if (mode === 'builtin') {
+    disconnectVNC();
+    builtinIntentionalClose = false;
+    if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) connectWS();
+  } else {
+    builtinIntentionalClose = true;
+    if (ws) { try { ws.close(); } catch (e) {} }
+    connectVNC();
+  }
+}
+
+// ============= noVNC =============
+let vncRFB = null;
+let _RFBClass = null;
+async function loadRFB() {
+  // Dynamic import works fine from a classic (non-module) script.
+  if (!_RFBClass) {
+    const mod = await import('/vendor/novnc/core/rfb.js');
+    _RFBClass = mod.default;
+  }
+  return _RFBClass;
+}
+
+function setVncStatus(state, message) {
+  const overlay = document.getElementById('vncOverlay');
+  if (!overlay) return;
+  overlay.dataset.state = state;
+  if (state === 'connected') {
+    overlay.classList.remove('visible');
+    return;
+  }
+  document.getElementById('vncOverlayMessage').textContent = message || (state === 'connecting' ? 'Connecting…' : 'Disconnected');
+  document.getElementById('vncOverlayIcon').textContent = state === 'offline' ? '⏻' : '⚠️';
+  overlay.classList.add('visible');
+}
+
+async function connectVNC() {
+  setVncStatus('connecting', 'Checking VNC availability…');
+  let status;
+  try {
+    const r = await fetch(`/api/vms/${vmId}/vnc-status`);
+    status = await r.json();
+  } catch (e) {
+    if (consoleMode === 'novnc') setVncStatus('error', 'Could not reach the panel to check VNC status');
+    return;
+  }
+  if (consoleMode !== 'novnc') return; // user switched back before the check finished
+  if (!status.available) {
+    setVncStatus(/offline/i.test(status.reason || '') ? 'offline' : 'error', status.reason || 'noVNC console is not available for this VM');
+    return;
+  }
+
+  let RFBClass;
+  try {
+    RFBClass = await loadRFB();
+  } catch (e) {
+    setVncStatus('error', 'Could not load the noVNC client library');
+    return;
+  }
+  if (consoleMode !== 'novnc') return;
+
+  const target = document.getElementById('vncScreen');
+  target.innerHTML = '';
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const url = `${proto}://${location.host}/vnc-console/${vmId}`;
+
+  try {
+    vncRFB = new RFBClass(target, url);
+    vncRFB.scaleViewport = true;
+    vncRFB.resizeSession = true;
+    vncRFB.addEventListener('connect', () => setVncStatus('connected'));
+    vncRFB.addEventListener('disconnect', (e) => {
+      vncRFB = null;
+      if (consoleMode === 'novnc') {
+        setVncStatus('error', (e.detail && e.detail.clean) ? 'VNC session ended' : 'VNC connection lost - click noVNC again to retry');
+      }
+    });
+    vncRFB.addEventListener('credentialsrequired', () => {
+      setVncStatus('error', 'VNC server unexpectedly requested credentials');
+    });
+  } catch (e) {
+    setVncStatus('error', 'Failed to start VNC session: ' + e.message);
+  }
+}
+
+function disconnectVNC() {
+  if (vncRFB) {
+    try { vncRFB.disconnect(); } catch (e) {}
+    vncRFB = null;
+  }
+}
+
+// Connect WebSocket
+function connectWS() {
+  const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/console/${vmId}`;
+  updateWSStatus('connecting');
+  
+  try {
+    ws = new WebSocket(wsUrl);
+    ws.binaryType = 'arraybuffer';
+    
+    ws.onopen = () => {
+      updateWSStatus('connected');
+      appendOutput('\r\n\x1b[32m✓ WebSocket connected\x1b[0m\r\n');
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'output' && msg.data) {
+          appendOutput(msg.data);
+        }
+      } catch(e) {
+        if (typeof event.data === 'string') {
+          appendOutput(event.data);
+        }
+      }
+    };
+    
+    ws.onclose = () => {
+      updateWSStatus('disconnected');
+      if (consoleMode === 'builtin') appendOutput('\r\n\x1b[31m✗ Connection closed\x1b[0m\r\n');
+      // Auto-reconnect after 3s, unless we deliberately closed this to
+      // switch to the noVNC console (or navigated to it since).
+      if (!builtinIntentionalClose && consoleMode === 'builtin') setTimeout(connectWS, 3000);
+    };
+    
+    ws.onerror = () => {
+      updateWSStatus('error');
+      if (consoleMode === 'builtin') appendOutput('\r\n\x1b[31m✗ WebSocket error\x1b[0m\r\n');
+    };
+  } catch(e) {
+    updateWSStatus('error');
+    appendOutput(`\r\n\x1b[31m✗ Connection error: ${e.message}\x1b[0m\r\n`);
+    if (consoleMode === 'builtin') setTimeout(connectWS, 3000);
+  }
+}
+
+function updateWSStatus(state) {
+  const el = document.getElementById('wsStatus');
+  if (!el) return;
+  const states = {
+    connecting: { text: '🟡 Connecting...', style: 'background: rgba(245, 158, 11, 0.15); color: #fbbf24;' },
+    connected: { text: '🟢 Connected', style: 'background: rgba(16, 185, 129, 0.15); color: #34d399;' },
+    disconnected: { text: '⚫ Disconnected', style: 'background: rgba(100, 116, 139, 0.15); color: #94a3b8;' },
+    error: { text: '🔴 Error', style: 'background: rgba(239, 68, 68, 0.15); color: #f87171;' }
+  };
+  const s = states[state] || states.disconnected;
+  el.textContent = s.text;
+  el.style.cssText = `margin-left: auto; font-size: 11px; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; ${s.style}`;
+}
+
+// ANSI color escape code parser
+function parseAnsi(text) {
+  return text
+    .replace(/\x1b\[32m/g, '<span class="ansi-green">')
+    .replace(/\x1b\[31m/g, '<span class="ansi-red">')
+    .replace(/\x1b\[33m/g, '<span class="ansi-yellow">')
+    .replace(/\x1b\[34m/g, '<span class="ansi-blue">')
+    .replace(/\x1b\[36m/g, '<span class="ansi-cyan">')
+    .replace(/\x1b\[37m/g, '<span class="ansi-white">')
+    .replace(/\x1b\[0m/g, '</span>')
+    .replace(/\x1b\[1m/g, '<span class="ansi-bold">')
+    .replace(/\x1b\[\d+m/g, '')
+    .replace(/\x1b\[\d+;\d+m/g, '')
+    .replace(/\x1b\[\d+;\d+;\d+m/g, '')
+    .replace(/\x1b\[[\d;]*[A-Za-z]/g, '');
+}
+
+function appendOutput(text) {
+  const terminal = document.getElementById('terminal');
+  if (!terminal) return;
+  
+  const parsed = parseAnsi(escTerminal(text));
+  const span = document.createElement('span');
+  span.innerHTML = parsed;
+  terminal.appendChild(span);
+  
+  if (autoScroll) {
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+  
+  const children = terminal.children;
+  if (children.length > 5000) {
+    terminal.removeChild(children[0]);
+  }
+}
+
+function escTerminal(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\r\n/g, '\n')
+    .replace(/\n/g, '<br>');
+}
+
+function clearTerminal() {
+  const terminal = document.getElementById('terminal');
+  terminal.innerHTML = '';
+  appendOutput('\x1b[36m[Console cleared]\x1b[0m\r\n');
+}
+
+function scrollToBottom() {
+  const terminal = document.getElementById('terminal');
+  terminal.scrollTop = terminal.scrollHeight;
+  autoScroll = true;
+}
+
+function toggleWrap() {
+  const terminal = document.getElementById('terminal');
+  const btn = document.getElementById('wrapBtn');
+  wordWrap = !wordWrap;
+  terminal.style.whiteSpace = wordWrap ? 'pre-wrap' : 'pre';
+  terminal.style.wordBreak = wordWrap ? 'break-all' : 'normal';
+  btn.style.color = wordWrap ? '#818cf8' : 'var(--text-muted)';
+}
+
+document.getElementById('terminal').addEventListener('scroll', function() {
+  const el = this;
+  autoScroll = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+});
+
+function sendCommand() {
+  const input = document.getElementById('cmdInput');
+  const cmd = input.value;
+  
+  if (!cmd.trim() && cmd !== '') return;
+  
+  if (cmd.trim()) {
+    commandHistory.unshift(cmd);
+    if (commandHistory.length > 100) commandHistory.pop();
+    historyIndex = -1;
+  }
+  
+  appendOutput(`\r\n<span class="ansi-green">vm@${vmId}:~$</span> ${escTerminal(cmd)}\r\n`);
+  
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'input', data: cmd + '\n' }));
+  } else {
+    fetch(`/api/vms/${vmId}/console/command`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: cmd })
+    }).catch(() => {});
+  }
+  
+  input.value = '';
+}
+
+document.getElementById('cmdInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    sendCommand();
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    historyIndex = Math.min(historyIndex + 1, commandHistory.length - 1);
+    if (commandHistory[historyIndex]) {
+      document.getElementById('cmdInput').value = commandHistory[historyIndex];
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    historyIndex = Math.max(historyIndex - 1, -1);
+    document.getElementById('cmdInput').value = historyIndex >= 0 ? (commandHistory[historyIndex] || '') : '';
+  } else if (e.key === 'l' && e.ctrlKey) {
+    e.preventDefault();
+    clearTerminal();
+  }
+});
+
+connectWS();
+document.getElementById('cmdInput').focus();
+
+setTimeout(() => {
+  const t = document.getElementById('terminal');
+  if (t) t.scrollTop = t.scrollHeight;
+}, 500);
+</script>
+  <script src="/js/vnm-motion.js" defer></script>
+</body>
+</html>
