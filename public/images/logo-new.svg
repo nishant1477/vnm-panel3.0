@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="55%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="#0B0620" opacity="0.28"/>
+  <rect width="512" height="512" rx="116" fill="url(#lg)"/>
+  <path d="M0 116 a116 116 0 0 1 116 -116 h280 a116 116 0 0 1 116 116 v120 a512 512 0 0 1 -512 0 z" fill="url(#shine)" opacity="0.35"/>
+  <!-- V monogram -->
+  <path d="M140 150 H214 L256 278 L298 150 H372 L314 372 H198 Z" fill="#FFFFFF"/>
+  <!-- the remote "wings" node -->
+  <circle cx="392" cy="118" r="26" fill="#22D3EE"/>
+  <circle cx="392" cy="118" r="42" fill="none" stroke="#22D3EE" stroke-opacity="0.45" stroke-width="10"/>
+  <!-- virtualized layers -->
+  <rect x="150" y="394" width="212" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.9"/>
+  <rect x="186" y="426" width="140" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.55"/>
+</svg>
