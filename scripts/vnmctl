@@ -1,0 +1,261 @@
+#!/usr/bin/env bash
+# =====================================================================
+# VNM Shield — vnmctl (command-line control & offline recovery)
+# ---------------------------------------------------------------------
+# Works even when the web panel is DOWN (this is the recovery path
+# required by the Shield spec). Everything privileged runs as root
+# (sudo); read-only commands work as any user that can reach the
+# data directory.
+#
+#   sudo vnmctl status                 panel + watchdog + emergency state
+#   sudo vnmctl health                 run the panel health checks (needs a
+#                                      running panel for the HTTP part; the
+#                                      file/db checks work offline)
+#   sudo vnmctl backup [--reason X]    create an encrypted vault backup now
+#   sudo vnmctl verify <file>          verify a backup end-to-end
+#   sudo vnmctl restore <file>         restore panel code+DB from a verified
+#                                      backup (never touches VM disks);
+#                                      adds --skip-db to keep the current DB
+#   sudo vnmctl baseline [reason]      (re)establish the integrity baseline
+#   sudo vnmctl scan                   integrity scan now
+#   sudo vnmctl emergency on  "reason" activate lockdown
+#   sudo vnmctl emergency off --code C lift lockdown with the recovery code
+#                                      (code lives in <data>/shield/
+#                                       emergency-recovery.txt, root-only)
+#   sudo vnmctl logs [n]               tail panel + watchdog + recovery logs
+#   sudo vnmctl watchdog status        watchdog heartbeat + recent actions
+#   sudo vnmctl update <zip> <json>    verified update (signature + hashes
+#                                      + preflight + backup + rollback)
+#   sudo vnmctl rollback               roll back the last update
+#   sudo vnmctl restart                systemctl restart vnm-panel
+# =====================================================================
+set -euo pipefail
+
+PANEL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SERVICE_USER="${VNM_SERVICE_USER:-vnmpanel}"
+DATA_DIR="${VNM_DATA_DIR:-/home/$SERVICE_USER/.vnm}"
+export VNM_DATA_DIR="$DATA_DIR"
+NODE_BIN="${NODE_BIN:-node}"
+SHIELD_DIR="$DATA_DIR/shield"
+
+c_red=$'\033[31m'; c_green=$'\033[32m'; c_yellow=$'\033[33m'; c_cyan=$'\033[36m'; c_off=$'\033[0m'
+hdr() { printf '\n%s== %s ==%s\n' "$c_cyan" "$1" "$c_off"; }
+die() { printf '%sERROR:%s %s\n' "$c_red" "$c_off" "$1" >&2; exit 1; }
+
+# run a node snippet with the panel's node_modules on the path
+nd() { (cd "$PANEL_DIR" && NODE_PATH="$PANEL_DIR/node_modules" VNM_DATA_DIR="$DATA_DIR" "$NODE_BIN" -e "$1"); }
+
+need_root() { [[ $EUID -eq 0 ]] || die "run with sudo"; }
+
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+  status)
+    hdr "Panel service"
+    systemctl is-active vnm-panel 2>/dev/null && true || echo "inactive/not-found"
+    hdr "Watchdog"
+    "$NODE_BIN" "$PANEL_DIR/watchdog/vnm-watchdog.js" --status 2>/dev/null || echo "no heartbeat (watchdog not running?)"
+    hdr "Emergency mode"
+    if [[ -f "$SHIELD_DIR/emergency.lock" ]]; then
+      echo -e "${c_red}ACTIVE${c_off}"
+      cat "$SHIELD_DIR/emergency.lock"
+      echo "lift with: sudo $0 emergency off --code <code in $SHIELD_DIR/emergency-recovery.txt>"
+    else
+      echo -e "${c_green}off${c_off}"
+    fi
+    hdr "Data / backups"
+    ls -lh "$SHIELD_DIR/backups" 2>/dev/null | tail -n +2 | tail -5 || echo "no backups yet"
+    ;;
+
+  health)
+    need_root
+    hdr "HTTP health (panel must be running)"
+    curl -fsS --max-time 5 "http://127.0.0.1:${PORT:-8080}/api/health" 2>/dev/null || echo "panel not answering on ${PORT:-8080}"
+    echo
+    hdr "Database"
+    nd "const s=require('sqlite3');const d=new s.Database('$DATA_DIR/vnm.db',s.OPEN_READONLY,(e)=>{if(e){console.log('DB OPEN ERROR:',e.message);process.exit(1)}d.get('PRAGMA quick_check',[],(e2,r)=>{console.log(e2?'CHECK ERROR: '+e2.message:'quick_check: '+(r&&r.quick_check));d.close()})});"
+    hdr "Disk"
+    df -h / "$DATA_DIR" 2>/dev/null | tail -n +2
+    ;;
+
+  backup)
+    need_root
+    reason="${1:-cli-manual}"; shift || true
+    hdr "Creating encrypted vault backup"
+    nd "
+      const path=require('path');
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createBackupVault}=require('$PANEL_DIR/lib/shield-backup.js');
+      const vault=createBackupVault({db,getSetting:g,setSetting:s,notify:async()=>({}),panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR',dbPath:'$DATA_DIR/vnm.db'});
+      vault.createBackup('manual','$reason').then((r)=>{console.log(JSON.stringify(r,null,2));process.exit(r.ok?0:1)}).catch((e)=>{console.error('FAILED:',e.message);process.exit(1)});
+    "
+    ;;
+
+  verify)
+    need_root
+    [[ $# -ge 1 ]] || die "usage: vnmctl verify <file>"
+    hdr "Verifying backup (decrypt + hash every file + DB check)"
+    nd "
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createBackupVault}=require('$PANEL_DIR/lib/shield-backup.js');
+      const vault=createBackupVault({db,getSetting:g,setSetting:s,notify:async()=>({}),panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR',dbPath:'$DATA_DIR/vnm.db'});
+      vault.verifyBackup('$1').then((r)=>{console.log(JSON.stringify(r,null,2));process.exit(r.ok?0:1)});
+    "
+    ;;
+
+  restore)
+    need_root
+    [[ $# -ge 1 ]] || die "usage: vnmctl restore <file> [--skip-db]"
+    SKIP_DB=0; [[ "${2:-}" == "--skip-db" ]] && SKIP_DB=1
+    echo -e "${c_yellow}This replaces panel CODE and (unless --skip-db) the DATABASE.${c_off}"
+    echo "VM disks are never touched. A safety backup of the current state is taken first."
+    read -r -p "Type RESTORE to continue: " a
+    [[ "$a" == "RESTORE" ]] || die "aborted"
+    hdr "Restoring from $1"
+    nd "
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createBackupVault}=require('$PANEL_DIR/lib/shield-backup.js');
+      const vault=createBackupVault({db,getSetting:g,setSetting:s,notify:async()=>({}),panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR',dbPath:'$DATA_DIR/vnm.db'});
+      vault.restoreBackup('$1',{skipDb:$SKIP_DB}).then((r)=>{console.log(JSON.stringify(r,null,2));console.log('NOW RESTART: sudo $0 restart');process.exit(r.ok?0:1)});
+    "
+    ;;
+
+  baseline)
+    need_root
+    nd "
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createIntegrity}=require('$PANEL_DIR/lib/shield-integrity.js');
+      const engine=createIntegrity({db,getSetting:g,setSetting:s,panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR'});
+      engine.establishBaseline('${1:-cli}').then((r)=>{console.log('baseline established: '+r.files+' files');process.exit(0)});
+    "
+    ;;
+
+  scan)
+    need_root
+    nd "
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createIntegrity}=require('$PANEL_DIR/lib/shield-integrity.js');
+      const engine=createIntegrity({db,getSetting:g,setSetting:s,panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR'});
+      engine.scan('cli').then((r)=>{
+        console.log('mode:',r.mode,' maintenance:',r.maintenance?'ON':'off');
+        if(!r.changes.length){console.log('CLEAN - no integrity changes');process.exit(0)}
+        for(const c of r.changes) console.log(c.severity.toUpperCase().padEnd(8), c.type.padEnd(12), c.path);
+        console.log('\\nRestore with: sudo $0 restore-file <path>  (or re-baseline if expected)');
+        process.exit(2);
+      });
+    "
+    ;;
+
+  restore-file)
+    need_root
+    [[ $# -ge 1 ]] || die "usage: vnmctl restore-file <relative-path>"
+    nd "
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createIntegrity}=require('$PANEL_DIR/lib/shield-integrity.js');
+      const engine=createIntegrity({db,getSetting:g,setSetting:s,panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR'});
+      engine.restoreFile('$1','cli').then((r)=>console.log('restored:',r.path)).catch((e)=>{console.error('FAILED:',e.message);process.exit(1)});
+    "
+    ;;
+
+  emergency)
+    need_root
+    sub="${1:-}"; shift || true
+    case "$sub" in
+      on)
+        reason="${1:-cli-activated}"
+        mkdir -p "$SHIELD_DIR"
+        nd "
+          const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+          const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+          const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+          const {createEmergency}=require('$PANEL_DIR/lib/shield-emergency.js');
+          const em=createEmergency({db,getSetting:g,setSetting:s,notify:async()=>({}),dataDir:'$DATA_DIR'});
+          em.activate('$reason','cli').then((r)=>{console.log('EMERGENCY MODE ACTIVE');console.log('sessions revoked:',r.sessionsRevoked);console.log('recovery code file:',r.recoveryCodeFile);console.log('evidence:',r.evidencePath)});
+        "
+        ;;
+      off)
+        code=""
+        if [[ "${1:-}" == "--code" ]]; then code="${2:-}"; fi
+        nd "
+          const fs=require('fs');
+          const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+          const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+          const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+          const {createEmergency}=require('$PANEL_DIR/lib/shield-emergency.js');
+          const em=createEmergency({db,getSetting:g,setSetting:s,notify:async()=>({}),dataDir:'$DATA_DIR'});
+          em.deactivate('$code','cli').then((r)=>{console.log(JSON.stringify(r));process.exit(r.ok?0:1)});
+        " || die "invalid recovery code (see $SHIELD_DIR/emergency-recovery.txt)"
+        ;;
+      *) die "usage: vnmctl emergency on|off --code <code>" ;;
+    esac
+    ;;
+
+  logs)
+    n="${1:-60}"
+    hdr "vnm-panel journal (last $n)"
+    journalctl -u vnm-panel -n "$n" --no-pager 2>/dev/null || echo "journal unavailable"
+    hdr "watchdog log (last $n)"
+    tail -n "$n" "$SHIELD_DIR/watchdog.log" 2>/dev/null || echo "no watchdog log"
+    hdr "watchdog actions"
+    tail -n 20 "$SHIELD_DIR/watchdog-actions.jsonl" 2>/dev/null || echo "no actions recorded"
+    ;;
+
+  watchdog)
+    sub="${1:-status}"
+    case "$sub" in
+      status) "$NODE_BIN" "$PANEL_DIR/watchdog/vnm-watchdog.js" --status ;;
+      *) die "usage: vnmctl watchdog status" ;;
+    esac
+    ;;
+
+  update)
+    need_root
+    [[ $# -ge 2 ]] || die "usage: vnmctl update <release.zip> <release.json>"
+    hdr "Verified update"
+    nd "
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createBackupVault}=require('$PANEL_DIR/lib/shield-backup.js');
+      const vault=createBackupVault({db,getSetting:g,setSetting:s,notify:async()=>({}),panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR',dbPath:'$DATA_DIR/vnm.db'});
+      const {createUpdater}=require('$PANEL_DIR/lib/shield-updater.js');
+      const upd=createUpdater({db,getSetting:g,setSetting:s,notify:async()=>({}),backupVault:vault,panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR'});
+      upd.applyUpdate('$1','$2','cli').then((r)=>{console.log(JSON.stringify(r,null,2));if(r.ok)console.log('NOW RESTART: sudo $0 restart');process.exit(r.ok?0:1)});
+    "
+    ;;
+
+  rollback)
+    need_root
+    hdr "Rolling back the last update"
+    nd "
+      const db=new (require('sqlite3').Database)('$DATA_DIR/vnm.db');
+      const g=(k)=>new Promise((r)=>db.get('SELECT setting_value FROM settings WHERE setting_key=?',[k],(e,row)=>r(row?row.setting_value:null)));
+      const s=(k,v)=>new Promise((r)=>db.run('INSERT INTO settings (setting_key,setting_value) VALUES (?,?) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value',[k,String(v)],r));
+      const {createBackupVault}=require('$PANEL_DIR/lib/shield-backup.js');
+      const vault=createBackupVault({db,getSetting:g,setSetting:s,notify:async()=>({}),panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR',dbPath:'$DATA_DIR/vnm.db'});
+      const {createUpdater}=require('$PANEL_DIR/lib/shield-updater.js');
+      const upd=createUpdater({db,getSetting:g,setSetting:s,notify:async()=>({}),backupVault:vault,panelRoot:'$PANEL_DIR',dataDir:'$DATA_DIR'});
+      upd.rollbackLastUpdate('cli').then((r)=>{console.log(JSON.stringify(r,null,2));if(r.ok)console.log('NOW RESTART: sudo $0 restart');process.exit(r.ok?0:1)});
+    "
+    ;;
+
+  restart)
+    need_root
+    systemctl restart vnm-panel && echo "panel restarted"
+    ;;
+
+  help|*)
+    sed -n '3,30p' "$0" | sed 's/^# \{0,2\}//'
+    ;;
+esac

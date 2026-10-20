@@ -1,0 +1,219 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1496" height="420" viewBox="0 0 1496 420" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" role="img" aria-label="VNM Panel — self-hosted QEMU/KVM virtualization platform, made by Immortal">
+  <defs>
+    <!-- Background: deep space navy -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070b18"/>
+      <stop offset="0.55" stop-color="#0b1226"/>
+      <stop offset="1" stop-color="#101a38"/>
+    </linearGradient>
+    <!-- Title gradient with a travelling shimmer -->
+    <linearGradient id="titleGrad" gradientUnits="userSpaceOnUse" x1="330" y1="0" x2="1330" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.35" stop-color="#818cf8"/>
+      <stop offset="0.65" stop-color="#c084fc"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+      <animateTransform attributeName="gradientTransform" type="translate" values="-500 0; 500 0; -500 0" dur="7s" repeatCount="indefinite"/>
+    </linearGradient>
+    <!-- Pill + chip gradients -->
+    <linearGradient id="pillGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.5" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="shineGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="scanGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#22d3ee" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rackGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a2547"/>
+      <stop offset="1" stop-color="#111a36"/>
+    </linearGradient>
+    <!-- Soft glow for the title -->
+    <filter id="softGlow" x="-30%" y="-60%" width="160%" height="220%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="blurBig" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="58"/>
+    </filter>
+    <!-- Subtle grid -->
+    <pattern id="grid" width="46" height="46" patternUnits="userSpaceOnUse">
+      <path d="M46 0H0V46" fill="none" stroke="#3b4a7a" stroke-opacity="0.09" stroke-width="1"/>
+    </pattern>
+    <!-- Clip for the shine sweep inside the Made-by pill -->
+    <clipPath id="pillClip"><rect x="1122" y="52" width="330" height="58" rx="29"/></clipPath>
+  </defs>
+
+  <!-- ======================= BACKGROUND ======================= -->
+  <rect width="1496" height="420" rx="26" fill="url(#bgGrad)"/>
+  <rect width="1496" height="420" rx="26" fill="url(#grid)"/>
+
+  <!-- Aurora blobs, drifting forever -->
+  <g filter="url(#blurBig)">
+    <ellipse cx="320" cy="90" rx="230" ry="120" fill="#22d3ee" opacity="0.20">
+      <animateTransform attributeName="transform" type="translate" values="0 0; 90 40; -30 70; 0 0" dur="16s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="1180" cy="120" rx="250" ry="130" fill="#818cf8" opacity="0.20">
+      <animateTransform attributeName="transform" type="translate" values="0 0; -110 50; 40 90; 0 0" dur="19s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="760" cy="400" rx="330" ry="130" fill="#c084fc" opacity="0.16">
+      <animateTransform attributeName="transform" type="translate" values="0 0; 120 -50; -80 -20; 0 0" dur="23s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>
+
+  <!-- Twinkling stars -->
+  <g fill="#cdd9f4">
+    <circle cx="120" cy="60" r="2"><animate attributeName="opacity" values="0.15;1;0.15" dur="2.8s" repeatCount="indefinite"/></circle>
+    <circle cx="420" cy="40" r="1.6"><animate attributeName="opacity" values="1;0.1;1" dur="3.4s" repeatCount="indefinite"/></circle>
+    <circle cx="660" cy="70" r="2.2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="0.4s" repeatCount="indefinite"/></circle>
+    <circle cx="905" cy="45" r="1.7"><animate attributeName="opacity" values="1;0.15;1" dur="3.8s" begin="0.8s" repeatCount="indefinite"/></circle>
+    <circle cx="1080" cy="90" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.6s" begin="1.2s" repeatCount="indefinite"/></circle>
+    <circle cx="1320" cy="40" r="1.6"><animate attributeName="opacity" values="0.15;1;0.15" dur="3.1s" begin="0.2s" repeatCount="indefinite"/></circle>
+    <circle cx="1440" cy="150" r="2"><animate attributeName="opacity" values="1;0.2;1" dur="2.9s" begin="1.6s" repeatCount="indefinite"/></circle>
+    <circle cx="70" cy="210" r="1.8"><animate attributeName="opacity" values="0.2;1;0.2" dur="3.6s" begin="0.6s" repeatCount="indefinite"/></circle>
+    <circle cx="1470" cy="280" r="1.7"><animate attributeName="opacity" values="0.15;1;0.15" dur="2.4s" begin="1s" repeatCount="indefinite"/></circle>
+    <circle cx="520" cy="120" r="1.5"><animate attributeName="opacity" values="1;0.1;1" dur="4s" begin="1.4s" repeatCount="indefinite"/></circle>
+    <circle cx="790" cy="150" r="1.4"><animate attributeName="opacity" values="0.2;1;0.2" dur="3.2s" begin="0.9s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <!-- Scan line sweeping the banner -->
+  <rect x="-80" y="14" width="66" height="392" fill="url(#scanGrad)" opacity="0.5">
+    <animateTransform attributeName="transform" type="translate" values="0 0; 1600 0" dur="5.5s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- ======================= SERVER RACK ICON ======================= -->
+  <g>
+    <!-- Rack chassis -->
+    <rect x="92" y="108" width="196" height="212" rx="16" fill="url(#rackGrad)" stroke="#3b4a7a" stroke-width="1.5"/>
+    <!-- Three server units with blinking LEDs -->
+    <rect x="106" y="124" width="168" height="52" rx="9" fill="#0d1530" stroke="#2c3a68" stroke-width="1.2"/>
+    <circle cx="124" cy="150" r="5.5" fill="#34d399">
+      <animate attributeName="fill-opacity" values="1;0.25;1" dur="1.7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="142" cy="150" r="5.5" fill="#22d3ee">
+      <animate attributeName="fill-opacity" values="0.25;1;0.25" dur="1.7s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="166" y1="150" x2="254" y2="150" stroke="#4c5f9a" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite"/>
+    </line>
+
+    <rect x="106" y="188" width="168" height="52" rx="9" fill="#0d1530" stroke="#2c3a68" stroke-width="1.2"/>
+    <circle cx="124" cy="214" r="5.5" fill="#34d399">
+      <animate attributeName="fill-opacity" values="0.25;1;0.25" dur="2.1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="142" cy="214" r="5.5" fill="#c084fc">
+      <animate attributeName="fill-opacity" values="1;0.25;1" dur="2.1s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="166" y1="214" x2="238" y2="214" stroke="#4c5f9a" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <animate attributeName="opacity" values="1;0.25;1" dur="2.8s" repeatCount="indefinite"/>
+    </line>
+
+    <rect x="106" y="252" width="168" height="52" rx="9" fill="#0d1530" stroke="#2c3a68" stroke-width="1.2"/>
+    <circle cx="124" cy="278" r="5.5" fill="#34d399">
+      <animate attributeName="fill-opacity" values="1;0.3;1" dur="1.3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="142" cy="278" r="5.5" fill="#818cf8">
+      <animate attributeName="fill-opacity" values="0.3;1;0.3" dur="1.3s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="166" y1="278" x2="246" y2="278" stroke="#4c5f9a" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="3.1s" repeatCount="indefinite"/>
+    </line>
+
+    <!-- Glow ring pulsing around the rack -->
+    <rect x="92" y="108" width="196" height="212" rx="16" fill="none" stroke="url(#pillGrad)" stroke-width="2">
+      <animate attributeName="stroke-opacity" values="0.15;0.85;0.15" dur="3.2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- ======================= TITLE ======================= -->
+  <!-- Glow underlay -->
+  <text x="336" y="212" font-size="96" font-weight="800" letter-spacing="3" fill="#818cf8" filter="url(#softGlow)" opacity="0.55">VNM PANEL
+    <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite"/>
+  </text>
+  <!-- Main gradient text -->
+  <text x="336" y="212" font-size="96" font-weight="800" letter-spacing="3" fill="url(#titleGrad)">VNM PANEL</text>
+
+  <!-- Subtitle -->
+  <text x="342" y="258" font-size="23" fill="#8fa3c8" letter-spacing="0.4">Self-hosted QEMU / KVM virtualization — multi-node fleets, snapshots &amp; monitoring</text>
+
+  <!-- ======================= FEATURE CHIPS ======================= -->
+  <g font-size="15" font-weight="600" letter-spacing="1">
+    <rect x="342" y="292" width="150" height="34" rx="17" fill="#101a38" stroke="#31406f" stroke-width="1.2"/>
+    <circle cx="362" cy="309" r="4.5" fill="#34d399">
+      <animate attributeName="fill-opacity" values="1;0.25;1" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+    <text x="378" y="314.5" fill="#cdd9f4">MULTI-NODE</text>
+
+    <rect x="510" y="292" width="245" height="34" rx="17" fill="#101a38" stroke="#31406f" stroke-width="1.2"/>
+    <circle cx="530" cy="309" r="4.5" fill="#22d3ee">
+      <animate attributeName="fill-opacity" values="0.25;1;0.25" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="546" y="314.5" fill="#cdd9f4">SNAPSHOTS &amp; BACKUPS</text>
+
+    <rect x="773" y="292" width="195" height="34" rx="17" fill="#101a38" stroke="#31406f" stroke-width="1.2"/>
+    <circle cx="793" cy="309" r="4.5" fill="#c084fc">
+      <animate attributeName="fill-opacity" values="1;0.3;1" dur="2.6s" repeatCount="indefinite"/>
+    </circle>
+    <text x="809" y="314.5" fill="#cdd9f4">LIVE MIGRATION</text>
+
+    <rect x="986" y="292" width="160" height="34" rx="17" fill="#101a38" stroke="#31406f" stroke-width="1.2"/>
+    <circle cx="1006" cy="309" r="4.5" fill="#818cf8">
+      <animate attributeName="fill-opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="1022" y="314.5" fill="#cdd9f4">MONITORING</text>
+
+    <rect x="1164" y="292" width="145" height="34" rx="17" fill="#101a38" stroke="#31406f" stroke-width="1.2"/>
+    <circle cx="1184" cy="309" r="4.5" fill="#f472b6">
+      <animate attributeName="fill-opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="1200" y="314.5" fill="#cdd9f4">RDP · VNC</text>
+  </g>
+
+  <!-- ======================= MADE BY IMMORTAL PILL ======================= -->
+  <g>
+    <rect x="1122" y="52" width="330" height="58" rx="29" fill="#0d1530" stroke="url(#pillGrad)" stroke-width="2">
+      <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Shine sweep -->
+    <g clip-path="url(#pillClip)">
+      <rect x="1040" y="46" width="150" height="70" fill="url(#shineGrad)" opacity="0.75">
+        <animateTransform attributeName="transform" type="translate" values="-160 0; 450 0" dur="3.2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <!-- Spinning diamond icon -->
+    <g transform="translate(1160 81)">
+      <rect x="-11" y="-11" width="22" height="22" rx="4" fill="none" stroke="#22d3ee" stroke-width="2.4" transform="rotate(45)">
+        <animateTransform attributeName="transform" type="rotate" values="45;405" dur="9s" repeatCount="indefinite"/>
+      </rect>
+      <circle r="3.6" fill="#22d3ee">
+        <animate attributeName="fill-opacity" values="1;0.35;1" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    <text x="1188" y="76" font-size="11.5" fill="#8fa3c8" letter-spacing="3" font-weight="600">MADE BY</text>
+    <text x="1188" y="100" font-size="23" font-weight="800" letter-spacing="4" fill="url(#titleGrad)">IMMORTAL</text>
+  </g>
+
+  <!-- ======================= CIRCUIT TRACE (draws itself) ======================= -->
+  <path d="M 90 366 H 300 L 330 336 H 520 M 640 366 H 810 L 840 336 H 1020 M 1160 366 H 1406" fill="none" stroke="url(#pillGrad)" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-dasharray="1600" stroke-dashoffset="1600">
+    <animate attributeName="stroke-dashoffset" values="1600;0;0;1600" dur="6s" repeatCount="indefinite"/>
+  </path>
+  <!-- Travelling data pulses along the trace -->
+  <circle r="3.5" fill="#22d3ee">
+    <animateMotion dur="2.4s" repeatCount="indefinite" path="M 90 366 H 300 L 330 336 H 520"/>
+  </circle>
+  <circle r="3.5" fill="#c084fc">
+    <animateMotion dur="2.9s" begin="0.7s" repeatCount="indefinite" path="M 640 366 H 810 L 840 336 H 1020"/>
+  </circle>
+  <circle r="3.5" fill="#818cf8">
+    <animateMotion dur="2.1s" begin="1.3s" repeatCount="indefinite" path="M 1160 366 H 1406"/>
+  </circle>
+
+  <!-- ======================= FOOTER TEXT ======================= -->
+  <text x="90" y="402" font-size="13" fill="#5a6a99" font-family="'Cascadia Code', 'JetBrains Mono', Consolas, monospace" letter-spacing="1">QEMU · KVM · CLOUD-INIT · WEBSOCKET AGENTS · MIT LICENSE</text>
+  <text x="1406" y="402" font-size="13" fill="#5a6a99" font-family="'Cascadia Code', 'JetBrains Mono', Consolas, monospace" letter-spacing="1" text-anchor="end">self-hosted · forever yours</text>
+</svg>
